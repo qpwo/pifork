@@ -1,0 +1,21 @@
+HOW TO ENABLE LIGHT MODE IN PI
+==============================
+
+There are 3 ways to switch Pi to light mode:
+
+1. Via the UI (Easiest)
+   Inside pi, type `/settings`. Select "Theme" and change it to "light".
+
+2. Via the Config File
+   Manually edit ~/.pi/agent/settings.json and set the theme key:
+   {
+     "theme": "light"
+   }
+   (Or use a script: tmp=$(mktemp) && jq '.theme = "light"' ~/.pi/agent/settings.json > "$tmp" && mv "$tmp" ~/.pi/agent/settings.json)
+
+3. Via Terminal Auto-Detection (COLORFGBG)
+   Pi attempts to detect your terminal background using the COLORFGBG env var.
+   You can force your shell to report a light background by adding this to your ~/.zshrc or ~/.bashrc:
+   export COLORFGBG="15;0"
+
+NOTE: The 'light' theme has recently been patched to guarantee WCAG AA (>= 4.5:1) contrast for syntax and UI elements against the light grey terminal backgrounds!
