@@ -1,0 +1,252 @@
+ASLR.txt: lines 3850-3883:
+Handlers with Interleaved Parameters
+
+A handler with interleaved parameters is a special case of one with positional parameters. The definition shows the order in which to list parameters when calling the handler and the statements to be executed when the handler is called, but the name of the handler is broken into pieces and interleaved with the parameters, which can make it easier to read. Handlers with interleaved parameters may be used in any script, but are especially useful with bridged Objective-C methods, since they naturally resemble Objective-C syntax. The syntax is shown in Handler Syntax (Interleaved Parameters).
+
+A handler with interleaved parameters may have only one parameter, as in this example:
+
+on areaOfCircleWithRadius:radius
+
+    return radius ^ 2 * pi
+
+end areaOfCircleWithRadius:
+
+Or more than one, as in this example:
+
+on areaOfRectangleWithWidth:w height:h
+
+    return w * h
+
+end areaOfRectangleWithWidth:height:
+
+To call a handler with interleaved parameters, list the parameters in the same order as they are specified in the handler definition. Despite the resemblance to labeled parameters, the parameters may not be reordered. Also, the call must be explicitly sent to an object, even if the target object is the default, it. For example:
+
+its foo:5 bar:105 --this works
+
+tell it to foo:5 bar:105 --as does this
+
+foo:5 bar:105 --syntax error.
+
+Note: The actual name of an interleaved-parameter handler is all the name parts strung together with underscores, and is equivalent to a handler defined using that name with positional parameters. For example, these two handler declarations are equivalent:
+
+on tableView:t objectValueForTableColumn:c row:r
+
+on tableView_objectValueForTableColumn_row_(t, c, r)
+Given a compiled script, AppleScript will automatically translate between the two forms depending on whether or not the current system version supports interleaved parameters.
+
+ASLR.txt: lines 3940-3954:
+Passing by Reference Versus Passing by Value
+
+Within a handler, each parameter is like a variable, providing access to passed information. AppleScript passes all parameters by reference, which means that a passed variable is shared between the handler and the caller, as if the handler had created a variable using the set command. However, it is important to remember a point raised in Using the copy and set Commands: only mutable objects can actually be changed.
+
+As a result, a parameter’s class type determines whether information is effectively passed by value or by reference:
+
+For mutable objects (those whose class is date, list, record, or script), information is passed by reference:
+
+If a handler changes the value of a parameter of this type, the original object is changed.
+
+For all other class types, information is effectively passed by value:
+
+Although AppleScript passes a reference to the original object, that object cannot be changed. If the handler assigns a new value to a parameter of this type, the original object is unchanged.
+
+If you want to pass by reference with a class type other than date, list, record, or script, you can pass a reference object that refers to the object in question. Although the handler will have access only to a copy of the reference object, the specified object will be the same. Changes to the specified object in the handler will change the original object, although changes to the reference object itself will not.
+
+ASLR.txt: lines 4104-4129:
+
+If a stay-open script application includes an idle handler, AppleScript sends the script application periodic idle commands—by default, every 30 seconds—allowing it to perform background tasks when it is not performing other actions.
+
+If an idle handler returns a positive number, that number becomes the rate (in seconds) at which the handler is called. If the handler returns a non-numeric value, the rate is not changed. You can return 0 to maintain the default delay of 30 seconds.
+
+For example, when saved as a stay-open application, the following script beeps every 5 seconds:
+
+on idle
+
+    beep
+
+    return 5
+
+end idle
+
+The result returned from a handler is just the result of the last statement, even if it doesn’t include the word return explicitly. (See return for more information.) For example, this handler gets called once a minute, because the value of the last statement is 60:
+
+on idle
+
+    set x to 10
+
+    beep
+
+    set x to x * 6  -- The handler returns the result (60).
+
+end idle
+
+ASLR.txt: lines 5016-5032:
+
+A reference to a file, folder, or volume in the file system. A file object has exactly the same attributes as an alias object, with the addition that it can refer to an item that does not exist.
+
+For related information, see alias and POSIX file. For a description of the format for a file path, see Aliases and Files.
+
+Coercions Supported
+
+AppleScript supports coercion of a file object to a text object or single-item list.
+
+Examples
+set fp to open for access file "Leopard:Users:myUser:NewFile"
+
+close access fp
+Discussion
+
+You can create a file object that refers to a file or folder that does not exist. For example, you can use the choose file name command to obtain a file object for a file that need not currently exist.
+
+
+ASLR.txt: lines 5149-5211:
+For large lists, it is more efficient to use the a reference to operator when inserting a large number of items into a list, rather than to access the list directly. For example, using direct access, the following script takes about 10 seconds to create a list of 10,000 integers (results will vary depending on the computer and other factors):
+
+set bigList to {}
+
+set numItems to 10000
+
+set t to (time of (current date)) --Start timing operations
+
+repeat with n from 1 to numItems
+
+    copy n to the end of bigList
+
+    -- DON'T DO THE FOLLOWING--it's even slower!
+
+    -- set bigList to bigList & n
+
+end
+
+set total to (time of (current date)) - t --End timing
+
+But the following script, which uses the a reference to operator, creates a list of 100,000 integers (ten times the size) in just a couple of seconds (again, results may vary):
+
+set bigList to {}
+
+set bigListRef to a reference to bigList
+
+set numItems to 100000
+
+set t to (time of (current date)) --Start timing operations
+
+repeat with n from 1 to numItems
+
+    copy n to the end of bigListRef
+
+end
+
+set total to (time of (current date)) - t --End timing
+
+Similarly, accessing the items in the previously created list is much faster using a reference to—the following takes just a few seconds:
+
+set t to (time of (current date)) --Start timing
+
+repeat with n from 1 to numItems -- where numItems = 100,000
+
+    item n of bigListRef
+
+end repeat
+
+set total to (time of (current date)) - t --End timing
+
+However, accessing the list directly, even for only 4,000 items, can take over a minute:
+
+set numItems to 4000
+
+set t to (time of (current date)) --Start timing
+
+repeat with n from 1 to numItems
+
+    item n of bigList
+
+end repeat
+
+set total to (time of (current date)) - t --End timing
+
+ASLR.txt: lines 5250-5271:
+
+A pseudo-class equivalent to the file class.
+
+There is never an object whose class is POSIX file; the result of evaluating a POSIX file specifier is a file object. The difference between file and POSIX file objects is in how they interpret name specifiers: a POSIX file object interprets "name" as a POSIX path, while a file object interprets it as an HFS path.
+
+For related information, see alias and file. For a description of the format for a POSIX path, see Aliases and Files.
+
+Properties of POSIX file objects
+
+See file.
+
+Coercions Supported
+
+See file.
+
+Examples
+
+The following example asks the user to specify a file name, starting in the temporary directory /tmp, which is difficult to specify using a file specifier:
+
+set fileName to choose file name default location (POSIX file "/tmp")
+
+    -result: dialog starts in /tmp folder
+
+ASLR.txt: lines 5533-5536:
+quoted form
+ 	Access:	read only
+ 	Class:	text
+ 	A representation of the text that is safe from further interpretation by the shell, no matter what its contents are. Mainly useful for passing a text string to the do shell script command.
+
+ASLR.txt: lines 5786-5840:
+unit types
+
+Used for working with measurements of length, area, cubic and liquid volume, mass, and temperature.
+
+The unit type classes support simple objects that do not contain other values and have only a single property, the class property.
+
+Properties of unit type objects
+class
+ 	Access:	read only
+ 	Class:	(varies; listed below)
+ 	The class identifier for the object. These are the available classes:
+ 	Length: centimetres, centimeters, feet, inches, kilometres, kilometers, metres, meters, miles, yards
+ 	Area: square feet, square kilometres, square kilometers, square metres, square meters, square miles, square yards
+ 	Cubic volume: cubic centimetres, cubic centimeters, cubic feet, cubic inches, cubic metres, cubic meters, cubic yards
+ 	Liquid volume: gallons, litres, liters, quarts
+ 	Weight: grams, kilograms, ounces, pounds
+ 	Temperature: degrees Celsius, degrees Fahrenheit, degrees Kelvin
+
+Operators
+
+None. You must explicitly coerce a unit type to a number type before you can perform operations with it.
+
+Coercions Supported
+
+You can coerce a unit type object to integer, single-item list, real, or text. You can also coerce between unit types in the same category, such as inches to kilometers (length) or gallons to liters (liquid volume). As you would expect, there is no coercion between categories, such as from gallons to degrees Centigrade.
+
+Examples
+
+The following statements calculate the area of a circle with a radius of 7 yards, then coerce the area to square feet:
+
+set circleArea to (pi * 7 * 7) as square yards --result: square yards 153.9380400259
+
+circleArea as square feet --result: square feet 1385.4423602331
+
+The following statements set a variable to a value of 5.0 square kilometers, then coerce it to various other units of area:
+
+set theArea to 5.0 as square kilometers --result: square kilometers 5.0
+
+theArea as square miles --result: square miles 1.930510792712
+
+theArea as square meters --result: square meters 5.0E+6
+
+However, you cannot coerce an area measurement to a unit type in a different category:
+
+set theArea to 5.0 as square meters --result: square meters 5.0
+
+theArea as cubic meters --result: error
+
+theArea as degrees Celsius --result: error
+
+The following statements demonstrate coercion of a unit type to a text object:
+
+set myPounds to 2.2 as pounds --result: pounds 2.2
+
+set textValue to myPounds as text --result: "2.2"
+

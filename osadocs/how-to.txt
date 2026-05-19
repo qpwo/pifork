@@ -1,0 +1,257 @@
+# List installed OSA languages; pass one of these names to osascript -l or osacompile -l.
+osalang
+
+# List OSA languages with component ids and capability flags.
+osalang -l
+
+# Check the AppleScript version explicitly, not an app's version property inside a tell block.
+osascript -e 'version of AppleScript'
+
+# Run one AppleScript statement from the shell.
+osascript -e 'display dialog "hello from osascript"'
+
+# Use a heredoc instead of shell escapes when the script has quotes, braces, or multiple lines.
+osascript <<'AS'
+display dialog "Continue?" buttons {"Cancel", "OK"} default button "OK" giving up after 10
+AS
+
+# Pass shell arguments to a script read from stdin by naming the script file as "-".
+osascript - alice bob <<'AS'
+on run argv
+    return "hello, " & item 1 of argv & "; argc=" & ((count argv) as text)
+end run
+AS
+
+# Print results as recompilable AppleScript source, not ambiguous human text.
+osascript -s s -e 'return {"foo", {"bar"}}'
+
+# Print AppleScript errors to stdout instead of stderr when a test harness needs to compare them.
+osascript -s o -e 'error "nope" number 42'
+
+# Run JavaScript for Automation through the same OSA tool.
+osascript -l JavaScript -e 'Application("Finder").home().name()'
+
+# Write an executable AppleScript source file; # comments are valid in AppleScript 2.0+.
+cat > hello.applescript <<'AS'
+#!/usr/bin/osascript
+# This line is both shell-safe and an AppleScript comment.
+display dialog "hello executable"
+AS
+chmod +x hello.applescript && ./hello.applescript
+
+# Compile source to .scpt, applet, and execute-only outputs; extensions pick formats and -x hides source.
+osacompile -o hello.scpt hello.applescript && osacompile -o Hello.app hello.applescript && osacompile -x -o locked.scpt hello.applescript
+
+# Run and decompile a compiled script.
+osascript hello.scpt && osadecompile hello.scpt
+
+# Build a stay-open applet with an idle handler; idle returns the next delay in seconds.
+cat > idle.applescript <<'AS'
+on idle
+    beep
+    return 5
+end idle
+AS
+osacompile -s -o IdleBeep.app idle.applescript
+
+# Target an app by bundle id when localized names or duplicate app names are annoying.
+osascript -e 'tell application id "com.apple.TextEdit" to activate'
+
+# Apps launched by AppleScript start hidden by default; activate explicitly when the user should see them.
+osascript -e 'tell application "TextEdit" to activate'
+
+# Get a Finder property through a tell block.
+osascript -e 'tell application "Finder" to get name of home'
+
+# Ask Finder for a text value first, then let AppleScript take word 1; Finder does not know text words.
+osascript -e 'tell application "Finder" to get word 1 of (get name of home)'
+
+# Get the first selected Finder item as a POSIX path and error if nothing is selected.
+osascript -e 'tell application "Finder" to set xs to selection' -e 'if xs is {} then error "nothing selected"' -e 'return POSIX path of (item 1 of xs as alias)'
+
+# Get the frontmost application process name through System Events.
+osascript -e 'tell application "System Events" to get name of first application process whose frontmost is true'
+
+# Show a notification without stopping the script.
+osascript -e 'display notification "done" with title "osascript"'
+
+# Put text on the clipboard and read it back.
+osascript -e 'set the clipboard to "hello clipboard"' -e 'return the clipboard'
+
+# Ask the user for an existing file and return a POSIX path.
+osascript -e 'POSIX path of (choose file)'
+
+# Ask the user for a new file name; the returned file object need not exist yet.
+osascript -e 'POSIX path of (choose file name default name "out.txt")'
+
+# choose from list returns false on Cancel; most other canceled dialogs signal error -128.
+osascript -e 'choose from list {"red", "blue"} with prompt "Pick one"'
+
+# delay is convenient but not real-time and is not more precise than about 1/60 second.
+osascript -e 'delay 0.5' -e 'return "done"'
+
+# Speak text out loud with the current system voice or a named voice.
+osascript -e 'say "hello" using "Victoria"'
+
+# Run a shell command from AppleScript; do shell script uses /bin/sh, not your interactive zsh.
+osascript -e 'do shell script "uptime"'
+
+# Use quoted form before interpolating text into a do shell script string.
+osascript -e 'set p to "/tmp/a b; tricky"' -e 'do shell script "printf %s " & quoted form of p'
+
+# Keep Unix newlines from do shell script output; default mode changes newlines and trims the final one.
+osascript <<'AS'
+do shell script "printf 'a\nb\n'" altering line endings false
+AS
+
+# Ask for administrator privileges for a shell command; the prompt grace period is about five minutes.
+osascript -e 'do shell script "id -un" with administrator privileges'
+
+# Write a file safely with open for access; close in the error branch, then close after success.
+osascript <<'AS'
+set f to POSIX file "/tmp/osa-write-demo.txt"
+set h to open for access f with write permission
+try
+    set eof of h to 0
+    write ("hello" & linefeed) to h
+on error e number n
+    close access h
+    error e number n
+end try
+close access h
+AS
+
+# Use POSIX file for POSIX paths; AppleScript does not expand "~" in POSIX file strings.
+osascript -e 'set f to POSIX file "/tmp/osa-write-demo.txt"; return f as text'
+
+# Use alias for an existing file or folder; aliases can survive moves and renames.
+osascript -e 'set a to (POSIX file "/Applications") as alias; return POSIX path of a'
+
+# Get your home folder as a POSIX path without using "~".
+osascript -e 'POSIX path of (path to home folder)'
+
+# Split or join text with AppleScript's text item delimiters, and always restore the old value.
+osascript <<'AS'
+set oldDelimiters to AppleScript's text item delimiters
+set AppleScript's text item delimiters to {":"}
+set parts to text items of "disk:folder:file.txt"
+set AppleScript's text item delimiters to {"/"}
+set joined to parts as text
+set AppleScript's text item delimiters to oldDelimiters
+return joined
+AS
+
+# Use my to call a script handler from inside a tell block, or the command is sent to the target app.
+osascript -e 'on clamp100(n)' -e 'if n > 100 then return 100' -e 'return n' -e 'end clamp100' -e 'tell application "Finder" to set c to count files in home' -e 'my clamp100(c)'
+
+# Define a normal positional handler for reusable logic.
+osascript -e 'on minimumValue(a, b)' -e 'if a < b then return a' -e 'return b' -e 'end minimumValue' -e 'minimumValue(12, 400)'
+
+# Destructure a list parameter with a patterned handler.
+osascript -e 'on displayPoint({x, y})' -e 'return "x = " & x & ", y = " & y' -e 'end displayPoint' -e 'displayPoint({3, 8})'
+
+# Destructure a record pattern by label; fields can be ignored.
+osascript -e 'set x to {bounds:{1, 2}, name:"G"}' -e 'set {name:n, bounds:{x1, y1}} to x' -e 'return n & ":" & (x1 as text) & "," & (y1 as text)'
+
+# Require a parameter class; failed coercion raises an AppleScript error before handler body logic matters.
+osascript -e 'on factorial(x as integer)' -e 'if x < 2 then return 1' -e 'return x * factorial(x - 1)' -e 'end factorial' -e 'factorial("5")'
+
+# Use interleaved handlers with an explicit target such as "tell me to"; bare calls are syntax errors.
+osascript -e 'on areaOfRectangleWithWidth:w height:h' -e 'return w * h' -e 'end areaOfRectangleWithWidth:height:' -e 'tell me to areaOfRectangleWithWidth:3 height:4'
+
+# set makes another reference to a mutable value; changing a nested list is visible through both names.
+osascript -e 'set alpha to {1, 2, {"a", "b"}}' -e 'set beta to alpha' -e 'set item 2 of item 3 of alpha to "change"' -e 'return {alpha, beta}'
+
+# copy makes a deep independent copy of AppleScript values.
+osascript -e 'set alpha to {1, 2, {"a", "b"}}' -e 'copy alpha to beta' -e 'set item 2 of item 3 of alpha to "change"' -e 'set item 1 of beta to 42' -e 'return {alpha, beta}'
+
+# Use a reference to a large list when appending many items or repeated indexing would otherwise be slow.
+osascript -e 'set xs to {}' -e 'set r to a reference to xs' -e 'repeat with n from 1 to 1000' -e 'copy n to the end of r' -e 'end repeat' -e 'item 1000 of r'
+
+# Script properties persist in compiled scripts until recompilation; running this twice prints 1 then 2.
+cat > counter.applescript <<'AS'
+property n : 0
+set n to n + 1
+return n
+AS
+osacompile -o counter.scpt counter.applescript && osascript counter.scpt && osascript counter.scpt
+
+# Use considering numeric strings when comparing dotted version strings.
+osascript -e 'considering numeric strings' -e 'return version of AppleScript is greater than or equal to "2.0"' -e 'end considering'
+
+# round defaults to banker rounding; ask for school rounding if you need halves away from zero.
+osascript -e 'return {round 0.5, round 0.5 rounding as taught in school, round -1.1 rounding down}'
+
+# Seed random number when tests need the same pseudo-random sequence every run.
+osascript -e 'return {random number from 1 to 6 with seed 7, random number from 1 to 6, random number from 1 to 6}'
+
+# Use id of text instead of deprecated ASCII character or ASCII number.
+osascript -e 'id of "AZ"'
+
+# AppleScript integers top out at about 29 bits; larger entered integers compile as reals.
+osascript -e 'return {536870911, class of 536870912}'
+
+# Coerce compatible unit types explicitly; there is no coercion between unrelated categories.
+osascript -e 'return (5.0 as square kilometers) as square miles'
+
+# Raw double-chevron event codes usually mean a missing dictionary or undisplayable data; fix that before editing raw codes.
+: # install or open the needed dictionary, or use raw event codes only if you know the four-character codes
+
+
+# ------------------------------------------------------------------------------
+# Footnotes
+# ------------------------------------------------------------------------------
+
+# [1] `osascript -s flags`: The -s flag modifies output style. The four main flags are:
+#     -s h: Human-readable (default). Easy to read, but can be ambiguous. `{"a", "b"}` and `{"a, b"}` both print as `a, b`.
+#     -s s: Recompilable source. Unambiguous, machine-readable output. `{"a", "b"}` prints as `{"a", "b"}`.
+#     -s o: Routes normal output and error messages to stdout. The default is to send errors to stderr.
+#     -s e: Routes normal output to stderr.
+
+# [2] `osacompile -x` (Execute-Only): This flag creates a script that can be run, but whose source code cannot be viewed or
+#     edited in Script Editor. This is a form of obfuscation, useful for distributing scripts without revealing the
+#     implementation. It is not a robust security feature, as the code can still be recovered by determined users.
+
+# [3] `osacompile -s` (Stay-Open): When compiling an applet (.app), the -s flag makes it a "stay-open" application.
+#     A normal applet launches, runs its `on run` handler, and then quits. A stay-open applet remains running after
+#     the `run` handler finishes. If it has an `on idle` handler, that handler will be called periodically, making it
+#     suitable for background tasks. The `idle` handler can `return <seconds>` to set the delay until its next call.
+
+# [4] `alias` vs `file` vs `POSIX file`: These specify filesystem paths with important differences.
+#     - `alias`: A dynamic reference to an item that *must exist* when the alias is created. The alias tracks the item by
+#       its unique filesystem ID, so it will not break if the item is moved or renamed.
+#     - `file`: A static reference using a colon-separated HFS-style path (e.g., "Macintosh HD:Users:me:Desktop:file.txt").
+#       The object does not need to exist when the reference is created.
+#     - `POSIX file`: A static reference using a slash-separated POSIX path (e.g., "/Users/me/Desktop/file.txt"). The object
+#       also does not need to exist. This form is most compatible with `do shell script` and Unix tools. Note that `~` is
+#       not expanded; use `(path to home folder)` to get the home directory path.
+
+# [5] `my` and `of me` in `tell` blocks: Inside a `tell application "..."` block, every command is sent to the target
+#     application by default. If your script defines its own handlers, you must use `my handlerName()` or `handlerName() of me`
+#     to specify that the handler is part of your script, preventing AppleScript from trying to send the command to the
+#     target application (which would cause an error).
+
+# [6] `set` vs `copy`: For mutable objects (lists, records, dates), these commands have different behaviors.
+#     - `set b to a`: `b` becomes another reference to the exact same object in memory as `a`. Modifying `a` will be reflected
+#       in `b`, and vice versa. It's like creating a pointer.
+#     - `copy a to b`: `b` becomes a new, completely independent, "deep" copy of `a`. Modifying `a` after the copy will have
+#       no effect on `b`. For immutable values like numbers and strings, the distinction is academic.
+
+# [7] `a reference to`: For very large lists, repeatedly accessing items or appending to the end can be slow, as AppleScript
+#     may re-process the list on each operation. Creating `set listRef to a reference to bigList` provides a more direct handle.
+#     Subsequent operations on `listRef` (e.g., `item 10000 of listRef` or `copy n to the end of listRef`) are significantly
+#     faster.
+
+# [8] `property`: A `property` is like a global variable, but its value persists across runs of a compiled script. The value is
+#     stored within the script file itself and is only reset when the script is recompiled. This is useful for maintaining state,
+#     such as a counter or user preference, without needing an external file.
+
+# [9] `do shell script`: This command uses a non-interactive `/bin/sh` shell. It does not load your personal `.zshrc` or
+#     `.bash_profile`, so your PATH and custom aliases/functions will not be available. Use full paths to executables. Use
+#     `quoted form of posixPath` to safely pass file paths or other user text to the shell, which prevents errors and security
+#     issues from spaces and special shell characters.
+
+# [10] Interleaved Handlers: AppleScript supports handlers with "interleaved" or "keyword-style" arguments, similar to
+#      Objective-C. A handler like `on areaOfRectangleWithWidth:w height:h` is called with `my areaOfRectangleWithWidth:5 height:10`.
+#      The actual name of the handler is `areaOfRectangleWithWidth:height:`. These calls must be explicitly targeted with `my`,
+#      `me`, or another object reference; a bare call is a syntax error.

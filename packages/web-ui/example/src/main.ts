@@ -8,6 +8,7 @@ import {
 	ChatPanel,
 	CustomProvidersStore,
 	createJavaScriptReplTool,
+	createStreamFn,
 	IndexedDBStorageBackend,
 	// PersistentStorageDialog, // TODO: Fix - currently broken
 	ProviderKeysStore,
@@ -161,7 +162,12 @@ const createAgent = async (initialState?: Partial<AgentState>) => {
 	}
 
 	agent = new Agent({
-		initialState: initialState || {
+	        streamFn: createStreamFn(async () => {
+	                const enabled = await storage.settings.get<boolean>("proxy.enabled");
+	                if (enabled === false) return undefined;
+	                return (await storage.settings.get<string>("proxy.url")) ?? "/api/proxy";
+	        }),
+	        initialState: initialState || {
 			systemPrompt: `You are a helpful AI assistant with access to various tools.
 
 Available tools:

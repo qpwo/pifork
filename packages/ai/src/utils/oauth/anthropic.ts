@@ -96,9 +96,24 @@ function formatErrorDetails(error: unknown): string {
 }
 
 async function startCallbackServer(expectedState: string): Promise<CallbackServerInfo> {
-	const { createServer } = await getNodeApis();
+        let createServer: typeof import("node:http").createServer | undefined;
+        try {
+                const apis = await getNodeApis();
+                createServer = apis.createServer;
+        } catch {
+                // Not in Node.js environment
+        }
 
-	return new Promise((resolve, reject) => {
+        if (!createServer) {
+                return {
+                        server: { close: () => {} } as Server,
+                        redirectUri: REDIRECT_URI,
+                        cancelWait: () => {},
+                        waitForCode: async () => null,
+                };
+        }
+
+        return new Promise((resolve, reject) => {
 		let settleWait: ((value: { code: string; state: string } | null) => void) | undefined;
 		const waitForCodePromise = new Promise<{ code: string; state: string } | null>((resolveWait) => {
 			let settled = false;

@@ -298,18 +298,75 @@ export async function showDeprecationWarnings(warnings: string[]): Promise<void>
 }
 
 /**
+ * Install the default macOS computer control skill if missing.
+ */
+function installMacosComputerControlSkill(): void {
+        if (process.platform !== "darwin") return;
+
+        const skillsDir = join(getAgentDir(), "skills");
+        const skillDir = join(skillsDir, "macos-computer");
+        const skillPath = join(skillDir, "SKILL.md");
+
+        if (existsSync(skillPath)) return;
+
+        if (!existsSync(skillDir)) {
+                mkdirSync(skillDir, { recursive: true });
+        }
+
+        const skillContent = [
+                "---",
+                "name: macos-computer",
+                "description: Instructions for controlling the macOS UI via AppleScript, bash, screenshots, and Accessibility.",
+                "---",
+                "",
+                "# macOS Computer Control",
+                "",
+                "Use this skill when asked to inspect or control the local macOS desktop.",
+                "",
+                "Requirements:",
+                "- The terminal app running pi must have Accessibility permission for UI control.",
+                "- Use bash commands. Prefer osascript for UI automation and screencapture for screen state.",
+                "",
+                "Open apps and URLs:",
+                "open -a \"Google Chrome\" \"https://example.com\"",
+                "open -a \"Calculator\"",
+                "",
+                "Type text:",
+                "osascript -e 'tell application \"System Events\" to keystroke \"hello world\"'",
+                "",
+                "Press keys:",
+                "osascript -e 'tell application \"System Events\" to key code 36' # Enter",
+                "osascript -e 'tell application \"System Events\" to key code 53' # Esc",
+                "",
+                "Click coordinates:",
+                "osascript -e 'tell application \"System Events\" to click at {100, 200}'",
+                "",
+                "Screenshot:",
+                "screencapture -x /tmp/pi-screen.png",
+                "",
+        ].join("\n");
+        try {
+                writeFileSync(skillPath, skillContent, "utf-8");
+                console.log(chalk.green("Installed macOS computer control skill to " + skillPath));
+        } catch (e) {
+                // ignore
+        }
+}
+
+/**
  * Run all migrations. Called once on startup.
  *
  * @returns Object with migration results and deprecation warnings
  */
 export function runMigrations(cwd: string): {
-	migratedAuthProviders: string[];
-	deprecationWarnings: string[];
+        migratedAuthProviders: string[];
+        deprecationWarnings: string[];
 } {
-	const migratedAuthProviders = migrateAuthToAuthJson();
-	migrateSessionsFromAgentRoot();
-	migrateToolsToBin();
-	migrateKeybindingsConfigFile();
-	const deprecationWarnings = migrateExtensionSystem(cwd);
-	return { migratedAuthProviders, deprecationWarnings };
+        const migratedAuthProviders = migrateAuthToAuthJson();
+        migrateSessionsFromAgentRoot();
+        migrateToolsToBin();
+        migrateKeybindingsConfigFile();
+        installMacosComputerControlSkill();
+        const deprecationWarnings = migrateExtensionSystem(cwd);
+        return { migratedAuthProviders, deprecationWarnings };
 }

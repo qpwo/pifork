@@ -1,0 +1,2471 @@
+ASLR.txt: lines 40-102:
+Double Angle Brackets
+
+When you type English language script statements in a Script Editor script window, AppleScript is able to compile the script because the English terms are described either in the terminology built into the AppleScript language or in the dictionary of an available scriptable application or scripting addition. When AppleScript compiles your script, it converts it into an internal executable format, then reformats the text to conform to settings in Script Editor’s Formatting preferences.
+
+When you open, compile, edit, or run scripts with Script Editor, you may occasionally see terms enclosed in double angle brackets, or chevrons («»). For example, you might see the term «event sysodlog» as part of a script—this is the event code representation for a display dialog command. The event code representation is also known as raw format.
+
+For compatibility with Asian national encodings, “《” and “》” are allowed as synonyms for “«” and “»” ( (Option- \ and Option-Shift- \, respectively, on a U.S. keyboard), since the latter do not exist in some Asian encodings.
+
+The following sections provide more information about when chevrons appear in scripts.
+
+When a Dictionary Is Not Available
+
+AppleScript uses double angle brackets in a Script Editor script window when it can’t identify a term. That happens when it encounters a term that isn’t part of the AppleScript language and isn’t defined in an application or scripting addition dictionary that is available when the script is opened or compiled.
+
+For example, if a script is compiled on one machine and later opened on another, the dictionary may not be available, or may be from an older version of the application or scripting addition that does not support the term.
+
+This can also happen if the file StandardAdditions.osax is not present in /System/ScriptingAdditions. Then, scripting addition commands such as display dialog will not be present and will be replaced with chevron notation («event sysodlog») when you compile or run the script.
+
+When AppleScript Displays Data in Raw Format
+
+Double angle brackets can also occur in results. For example, if the value of a variable is a script object named Joe, AppleScript represents the script object as shown in this script:
+
+script Joe
+
+    property theCount : 0
+
+end script
+
+ 
+
+set scriptObjectJoe to Joe
+
+scriptObjectJoe
+
+--result: «script Joe»
+
+Similarly, if Script Editor can’t display a variable’s data directly in its native format, it uses double angle brackets to enclose both the word data and a sequence of numerical values that represent the data. Although this may not visually resemble the original data, the data’s original format is preserved.
+
+This may occur because an application command returns a value that does not belong to any of the normal AppleScript classes. You can store such data in variables and send them as parameters to other commands, but Script Editor cannot display the data in its native format.
+
+Entering Script Information in Raw Format
+
+You can enter double angle brackets, or chevrons («»), directly into a script by typing Option-Backslash and Shift-Option-Backslash. You might want to do this if you’re working on a script that needs to use terminology that isn’t available on your current machine—for example, if you’re working at home and don’t have the latest dictionary for a scriptable application you are developing, but you know the codes for a supported term.
+
+You can also use AppleScript to display the underlying codes for a script, using the following steps:
+
+Create a script using standard terms compiled against an available application or scripting addition.
+
+Save the script as text and quit Script Editor.
+
+Remove the application or scripting addition from the computer.
+
+Open the script again and compile it.
+
+When AppleScript asks you to locate the application or scripting addition, cancel the dialog.
+
+Script Editor can compile the script, but displays chevron format for any terms that rely on a missing dictionary.
+
+Sending Raw Apple Events From a Script
+
+The term «event sysodlog» is actually the raw form for an Apple event with event class 'syso' and event ID 'dlog' (the display dialog command). For a list of many of the four-character codes and their related terminology used by Apple, see AppleScript Terminology and Apple Event Codes Reference.
+
+You can use raw syntax to enter and execute events (even complex events with numerous parameters) when there is no dictionary to support them. However, providing detailed documentation for how to do so is beyond the scope of this guide.
+
+ASLR.txt: lines 509-509:
+AppleScript remembers and enforces the first capitalization it comes across for an identifier. So if it first encounters an identifier as myAccount, it will later, during compilation, change versions such as MyAccount and myaccount to myAccount.
+
+ASLR.txt: lines 515-523:
+AppleScript provides a loophole to the preceding rules: identifiers whose first and last characters are vertical bars (|) can contain any characters. The leading and trailing vertical bars are not considered part of the identifier.
+
+Important: This use of vertical bars can make scripts difficult to read, and is not recommended.
+
+The following are legal identifiers: |back&forth|, |Right*Now!|.
+
+An identifier can contain additional vertical bars preceded by a backslash (\) character, as in the identifier |This\|Or\|That|. Use of the backslash character is described further in the Special String Characters section of the text class.
+
+Keywords
+
+ASLR.txt: lines 929-934:
+Starting in version 2.0, AppleScript also supports use of the # symbol as an end-of-line comment. This allows you to make a plain AppleScript script into a Unix executable by beginning it with the following line and giving it execute permission:
+
+#!/usr/bin/osascript
+
+Compiled scripts that use # will run normally on pre-2.0 systems, and if edited will display using --. Executable text scripts using #!/usr/bin/osascript will not run on pre-2.0 systems, since the # will be considered a syntax error.
+
+
+ASLR.txt: lines 945-953:
+
+A simple AppleScript statement must normally be entered on a single line. You can extend a statement to the next line by ending it with the continuation character, ¬. With a U.S. keyboard, you can enter this character by typing Option-l (lower-case L). In Script Editor, you can type Option-Return, which inserts the continuation character and moves the insertion point to the next line.
+
+Here is a single statement displayed on two lines:
+
+display dialog "This is just a test." buttons {"Great", "OK"} ¬
+
+default button "OK" giving up after 3
+
+
+ASLR.txt: lines 3638-3639:
+A handler is a collection of statements that can be invoked by name. Handlers are useful in scripts that perform the same action in more than one place. You can package statements that perform a specific task as a handler, give it a descriptive name, and call it from anywhere in the script. This makes the script shorter and easier to maintain.
+
+
+ASLR.txt: lines 3668-3674:
+The following is a definition for a simple handler that takes any parameter value that can be displayed as text (presumably one representing a date) and displays it in a dialog box. The handler name is rock; its parameter is around the clock, where around is a parameter label and clock is the parameter name (the is an AppleScript filler for readability):
+
+on rock around the clock
+
+    display dialog (clock as text)
+
+end rock
+
+ASLR.txt: lines 3797-3844:
+Handlers with Patterned Positional Parameters
+
+You can create a handler whose positional parameters define a pattern to match when calling the handler. For example, the following handler takes a single parameter whose pattern consists of two items in a list:
+
+on displayPoint({x, y})
+
+    display dialog ("x = " & x & ", y = " & y)
+
+end displayPoint
+
+ 
+
+-- Calling the handler:
+
+set testPoint to {3, 8}
+
+displayPoint(testPoint)
+
+A parameter pattern can be much more complex than a single list. The handler in the next example takes two numbers and a record whose properties include a list of bounds. The handler displays a dialog box summarizing some of the passed information.
+
+on hello(a, b, {length:l, bounds:{x, y, w, h}, name:n})
+
+    set q to a + b
+
+ 
+
+    set response to "Hello " & n & ", you  are " & l & ¬
+
+        " inches tall and occupy position (" & x &  ", " & y & ")."
+
+ 
+
+    display dialog response
+
+ 
+
+end hello
+
+ 
+
+set thing to {bounds:{1, 2, 4, 5}, name:"George", length:72}
+
+hello (2, 3, thing)
+
+--result: A dialog displaying “Hello George, you are 72 inches  tall
+
+--          and occupy position (1,2).”
+
+
+ASLR.txt: lines 3849-3883:
+minimumValue(20, maximumValue(1, 313)) --result: 20
+Handlers with Interleaved Parameters
+
+A handler with interleaved parameters is a special case of one with positional parameters. The definition shows the order in which to list parameters when calling the handler and the statements to be executed when the handler is called, but the name of the handler is broken into pieces and interleaved with the parameters, which can make it easier to read. Handlers with interleaved parameters may be used in any script, but are especially useful with bridged Objective-C methods, since they naturally resemble Objective-C syntax. The syntax is shown in Handler Syntax (Interleaved Parameters).
+
+A handler with interleaved parameters may have only one parameter, as in this example:
+
+on areaOfCircleWithRadius:radius
+
+    return radius ^ 2 * pi
+
+end areaOfCircleWithRadius:
+
+Or more than one, as in this example:
+
+on areaOfRectangleWithWidth:w height:h
+
+    return w * h
+
+end areaOfRectangleWithWidth:height:
+
+To call a handler with interleaved parameters, list the parameters in the same order as they are specified in the handler definition. Despite the resemblance to labeled parameters, the parameters may not be reordered. Also, the call must be explicitly sent to an object, even if the target object is the default, it. For example:
+
+its foo:5 bar:105 --this works
+
+tell it to foo:5 bar:105 --as does this
+
+foo:5 bar:105 --syntax error.
+
+Note: The actual name of an interleaved-parameter handler is all the name parts strung together with underscores, and is equivalent to a handler defined using that name with positional parameters. For example, these two handler declarations are equivalent:
+
+on tableView:t objectValueForTableColumn:c row:r
+
+on tableView_objectValueForTableColumn_row_(t, c, r)
+Given a compiled script, AppleScript will automatically translate between the two forms depending on whether or not the current system version supports interleaved parameters.
+
+ASLR.txt: lines 3885-3893:
+Parameter Specifications
+
+Note: Parameter specifications are supported in OS X Yosemite v10.10 and later.
+
+The parameter “name” in a handler definition may be a simple name, as shown above, or it may additionally specify a required class and, for labeled parameters, a default value. To specify a required class, follow the name with as class or as {class,…}. For example, you could declare a parameter to be specifically an integer like this:
+
+on factorial(x as integer)
+
+The effect is as if the handler began with set x to x as integer; if coercing the actual value to an integer fails, AppleScript throws an appropriate error, which may be caught with a try block. The class may be a list of classes, as described in Operators Reference.
+
+ASLR.txt: lines 3939-3954:
+
+Passing by Reference Versus Passing by Value
+
+Within a handler, each parameter is like a variable, providing access to passed information. AppleScript passes all parameters by reference, which means that a passed variable is shared between the handler and the caller, as if the handler had created a variable using the set command. However, it is important to remember a point raised in Using the copy and set Commands: only mutable objects can actually be changed.
+
+As a result, a parameter’s class type determines whether information is effectively passed by value or by reference:
+
+For mutable objects (those whose class is date, list, record, or script), information is passed by reference:
+
+If a handler changes the value of a parameter of this type, the original object is changed.
+
+For all other class types, information is effectively passed by value:
+
+Although AppleScript passes a reference to the original object, that object cannot be changed. If the handler assigns a new value to a parameter of this type, the original object is unchanged.
+
+If you want to pass by reference with a class type other than date, list, record, or script, you can pass a reference object that refers to the object in question. Although the handler will have access only to a copy of the reference object, the specified object will be the same. Changes to the specified object in the handler will change the original object, although changes to the reference object itself will not.
+
+ASLR.txt: lines 3956-3974:
+Calling Handlers in a tell Statement
+
+To call a handler from within a tell statement, you must use the reserved words of me or my to indicate that the handler is part of the script and not a command that should be sent to the target of the tell statement.
+
+For example, the following script calls the minimumValue handler defined in Handlers with Positional Parameters from within a tell statement. If this call did not include the words of me, it would cause an error, because AppleScript would send the minimumValue command to TextEdit, which does not understand that message.
+
+tell front document of application "TextEdit"
+
+    minimumValue(12, 400) of me
+
+    set paragraph 1 to result as text
+
+end tell
+
+--result: The handler call is successful.
+
+Instead of using the words of me, you could insert the word my before the handler call:
+
+my minimumValue(12, 400)
+
+ASLR.txt: lines 4100-4129:
+
+Two particular handlers that stay-open script applications often provide are an idle handler and a quit handler.
+
+idle Handlers
+
+If a stay-open script application includes an idle handler, AppleScript sends the script application periodic idle commands—by default, every 30 seconds—allowing it to perform background tasks when it is not performing other actions.
+
+If an idle handler returns a positive number, that number becomes the rate (in seconds) at which the handler is called. If the handler returns a non-numeric value, the rate is not changed. You can return 0 to maintain the default delay of 30 seconds.
+
+For example, when saved as a stay-open application, the following script beeps every 5 seconds:
+
+on idle
+
+    beep
+
+    return 5
+
+end idle
+
+The result returned from a handler is just the result of the last statement, even if it doesn’t include the word return explicitly. (See return for more information.) For example, this handler gets called once a minute, because the value of the last statement is 60:
+
+on idle
+
+    set x to 10
+
+    beep
+
+    set x to x * 6  -- The handler returns the result (60).
+
+end idle
+
+ASLR.txt: lines 4585-4587:
+
+An application on a local machine or an available server.
+
+
+ASLR.txt: lines 4659-4678:
+Special Considerations
+
+Starting in OS X v10.5, there are several changes in application behavior:
+
+Applications launch hidden.
+
+AppleScript has always launched applications if it needed to in order to send them a command. However, they would always launch visibly, which could be visually disruptive. AppleScript now launches applications hidden by default. They will not be visible unless the script explicitly says otherwise using activate.
+
+Applications are located lazily.
+
+When running a script, AppleScript will not attempt to locate an application until it needs to in order to send it a command. This means that a compiled script or script application may contain references to applications that do not exist on the user’s system, but AppleScript will not ask where the missing applications are until it encounters a relevant tell block. Previous versions of AppleScript would attempt to locate every referenced application before running the script.
+
+When opening a script for editing, AppleScript will attempt to locate all the referenced applications in the entire script, which may mean asking where one is. Pressing the Cancel button only cancels the search for that application; the script will continue opening normally, though custom terminology for that application will display as raw codes. In older versions, pressing Cancel would cancel opening the script.
+
+Applications are located and re-located dynamically.
+
+Object specifiers that refer to applications, including those in tell blocks, are evaluated every time a script runs. This alleviates problems with scripts getting “stuck” to a particular copy of an application.
+
+In prior versions of AppleScript, use of the new built-in application properties will fall back to sending an event to the application, but the application may not handle these properties in the same way, or handle them at all. (Most applications will handle name, version, and frontmost; id and running are uncommon.) The other new features described above require AppleScript 2.0.
+
+
+ASLR.txt: lines 4739-4749:
+Discussion
+
+When you pass a Boolean value as a parameter to a command, the form may change when you compile the command. For example, the following line
+
+choose folder showing package contents true
+
+is converted to this when compiled by AppleScript:
+
+choose folder with showing package contents
+
+It is standard for AppleScript to compile parameter expressions from the Boolean form (such as showing package contents true or invisibles false) into the with form (with showing package contents or without invisibles, respectively).
+
+ASLR.txt: lines 5016-5032:
+
+A reference to a file, folder, or volume in the file system. A file object has exactly the same attributes as an alias object, with the addition that it can refer to an item that does not exist.
+
+For related information, see alias and POSIX file. For a description of the format for a file path, see Aliases and Files.
+
+Coercions Supported
+
+AppleScript supports coercion of a file object to a text object or single-item list.
+
+Examples
+set fp to open for access file "Leopard:Users:myUser:NewFile"
+
+close access fp
+Discussion
+
+You can create a file object that refers to a file or folder that does not exist. For example, you can use the choose file name command to obtain a file object for a file that need not currently exist.
+
+
+ASLR.txt: lines 5067-5071:
+
+The biggest value (positive or negative) that can be expressed as an integer in AppleScript is ±536870911, which is equal to ±(2^29 – 1). Larger integers are converted to real numbers, expressed in exponential notation, when scripts are compiled.
+
+Note: The smallest possible integer value is actually -536870912 (-2^29), but it can only be generated as a result of an expression. If you enter it directly into a script, it will be converted to a real when you compile.
+
+
+ASLR.txt: lines 5097-5101:
+item
+ 	
+
+A value contained in the list. Each value contained in a list is an item and an item may itself be another list. You can refer to values by their item numbers. For example, item 2 of {"soup", 2, "nuts"} is the integer 2.
+
+
+ASLR.txt: lines 5148-5211:
+
+For large lists, it is more efficient to use the a reference to operator when inserting a large number of items into a list, rather than to access the list directly. For example, using direct access, the following script takes about 10 seconds to create a list of 10,000 integers (results will vary depending on the computer and other factors):
+
+set bigList to {}
+
+set numItems to 10000
+
+set t to (time of (current date)) --Start timing operations
+
+repeat with n from 1 to numItems
+
+    copy n to the end of bigList
+
+    -- DON'T DO THE FOLLOWING--it's even slower!
+
+    -- set bigList to bigList & n
+
+end
+
+set total to (time of (current date)) - t --End timing
+
+But the following script, which uses the a reference to operator, creates a list of 100,000 integers (ten times the size) in just a couple of seconds (again, results may vary):
+
+set bigList to {}
+
+set bigListRef to a reference to bigList
+
+set numItems to 100000
+
+set t to (time of (current date)) --Start timing operations
+
+repeat with n from 1 to numItems
+
+    copy n to the end of bigListRef
+
+end
+
+set total to (time of (current date)) - t --End timing
+
+Similarly, accessing the items in the previously created list is much faster using a reference to—the following takes just a few seconds:
+
+set t to (time of (current date)) --Start timing
+
+repeat with n from 1 to numItems -- where numItems = 100,000
+
+    item n of bigListRef
+
+end repeat
+
+set total to (time of (current date)) - t --End timing
+
+However, accessing the list directly, even for only 4,000 items, can take over a minute:
+
+set numItems to 4000
+
+set t to (time of (current date)) --Start timing
+
+repeat with n from 1 to numItems
+
+    item n of bigList
+
+end repeat
+
+set total to (time of (current date)) - t --End timing
+
+ASLR.txt: lines 5250-5271:
+
+A pseudo-class equivalent to the file class.
+
+There is never an object whose class is POSIX file; the result of evaluating a POSIX file specifier is a file object. The difference between file and POSIX file objects is in how they interpret name specifiers: a POSIX file object interprets "name" as a POSIX path, while a file object interprets it as an HFS path.
+
+For related information, see alias and file. For a description of the format for a POSIX path, see Aliases and Files.
+
+Properties of POSIX file objects
+
+See file.
+
+Coercions Supported
+
+See file.
+
+Examples
+
+The following example asks the user to specify a file name, starting in the temporary directory /tmp, which is difficult to specify using a file specifier:
+
+set fileName to choose file name default location (POSIX file "/tmp")
+
+    -result: dialog starts in /tmp folder
+
+ASLR.txt: lines 5533-5536:
+quoted form
+ 	Access:	read only
+ 	Class:	text
+ 	A representation of the text that is safe from further interpretation by the shell, no matter what its contents are. Mainly useful for passing a text string to the do shell script command.
+
+ASLR.txt: lines 5786-5840:
+unit types
+
+Used for working with measurements of length, area, cubic and liquid volume, mass, and temperature.
+
+The unit type classes support simple objects that do not contain other values and have only a single property, the class property.
+
+Properties of unit type objects
+class
+ 	Access:	read only
+ 	Class:	(varies; listed below)
+ 	The class identifier for the object. These are the available classes:
+ 	Length: centimetres, centimeters, feet, inches, kilometres, kilometers, metres, meters, miles, yards
+ 	Area: square feet, square kilometres, square kilometers, square metres, square meters, square miles, square yards
+ 	Cubic volume: cubic centimetres, cubic centimeters, cubic feet, cubic inches, cubic metres, cubic meters, cubic yards
+ 	Liquid volume: gallons, litres, liters, quarts
+ 	Weight: grams, kilograms, ounces, pounds
+ 	Temperature: degrees Celsius, degrees Fahrenheit, degrees Kelvin
+
+Operators
+
+None. You must explicitly coerce a unit type to a number type before you can perform operations with it.
+
+Coercions Supported
+
+You can coerce a unit type object to integer, single-item list, real, or text. You can also coerce between unit types in the same category, such as inches to kilometers (length) or gallons to liters (liquid volume). As you would expect, there is no coercion between categories, such as from gallons to degrees Centigrade.
+
+Examples
+
+The following statements calculate the area of a circle with a radius of 7 yards, then coerce the area to square feet:
+
+set circleArea to (pi * 7 * 7) as square yards --result: square yards 153.9380400259
+
+circleArea as square feet --result: square feet 1385.4423602331
+
+The following statements set a variable to a value of 5.0 square kilometers, then coerce it to various other units of area:
+
+set theArea to 5.0 as square kilometers --result: square kilometers 5.0
+
+theArea as square miles --result: square miles 1.930510792712
+
+theArea as square meters --result: square meters 5.0E+6
+
+However, you cannot coerce an area measurement to a unit type in a different category:
+
+set theArea to 5.0 as square meters --result: square meters 5.0
+
+theArea as cubic meters --result: error
+
+theArea as degrees Celsius --result: error
+
+The following statements demonstrate coercion of a unit type to a text object:
+
+set myPounds to 2.2 as pounds --result: pounds 2.2
+
+set textValue to myPounds as text --result: "2.2"
+
+ASLR.txt: lines 6059-6075:
+https://developer.apple.com/library/archive/documentation/AppleScript/Conceptual/AppleScriptLangGuide/reference/ASLR_reference_forms.html#//apple_ref/doc/uid/TP40000983-CH4g-BBCJCGDB
+https://developer.apple.com/library/archive/documentation/AppleScript/Conceptual/AppleScriptLangGuide/reference/ASLR_reference_forms.html#//apple_ref/doc/uid/TP40000983-CH4g-BBCHDJJJ
+https://developer.apple.com/library/archive/documentation/AppleScript/Conceptual/AppleScriptLangGuide/reference/ASLR_reference_forms.html#//apple_ref/doc/uid/TP40000983-CH4g-BBCHGEDI
+https://developer.apple.com/library/archive/documentation/AppleScript/Conceptual/AppleScriptLangGuide/reference/ASLR_operators.html#//apple_ref/doc/uid/TP40000983-CH5g-124070
+https://developer.apple.com/library/archive/documentation/AppleScript/Conceptual/AppleScriptLangGuide/reference/ASLR_operators.html#//apple_ref/doc/uid/TP40000983-CH5g-BAJEGEEC
+https://developer.apple.com/library/archive/documentation/AppleScript/Conceptual/AppleScriptLangGuide/reference/ASLR_operators.html#//apple_ref/doc/uid/TP40000983-CH5g-125314
+https://developer.apple.com/library/archive/documentation/AppleScript/Conceptual/AppleScriptLangGuide/reference/ASLR_operators.html#//apple_ref/doc/uid/TP40000983-CH5g-125417
+https://developer.apple.com/library/archive/documentation/AppleScript/Conceptual/AppleScriptLangGuide/reference/ASLR_operators.html#//apple_ref/doc/uid/TP40000983-CH5g-125467
+https://developer.apple.com/library/archive/documentation/AppleScript/Conceptual/AppleScriptLangGuide/reference/ASLR_operators.html#//apple_ref/doc/uid/TP40000983-CH5g-SW1
+https://developer.apple.com/library/archive/documentation/AppleScript/Conceptual/AppleScriptLangGuide/reference/ASLR_operators.html#//apple_ref/doc/uid/TP40000983-CH5g-SW4
+https://developer.apple.com/library/archive/documentation/AppleScript/Conceptual/AppleScriptLangGuide/reference/ASLR_operators.html#//apple_ref/doc/uid/TP40000983-CH5g-SW5
+https://developer.apple.com/library/archive/documentation/AppleScript/Conceptual/AppleScriptLangGuide/reference/ASLR_operators.html#//apple_ref/doc/uid/TP40000983-CH5g-SW7
+https://developer.apple.com/library/archive/documentation/AppleScript/Conceptual/AppleScriptLangGuide/reference/ASLR_operators.html#//apple_ref/doc/uid/TP40000983-CH5g-125019
+https://developer.apple.com/library/archive/documentation/AppleScript/Conceptual/AppleScriptLangGuide/reference/ASLR_operators.html#//apple_ref/doc/uid/TP40000983-CH5g-125052
+https://developer.apple.com/library/archive/documentation/AppleScript/Conceptual/AppleScriptLangGuide/reference/ASLR_operators.html#//apple_ref/doc/uid/TP40000983-CH5g-125159
+https://developer.apple.com/library/archive/documentation/AppleScript/Conceptual/AppleScriptLangGuide/reference/ASLR_operators.html#//apple_ref/doc/uid/TP40000983-CH5g-125200
+https://developer.apple.com/library/archive/documentation/AppleScript/Conceptual/AppleScriptLangGuide/reference/ASLR_operators.html#//apple_ref/doc/uid/TP40000983-CH5g-124095
+
+ASLR.txt: lines 6240-6248:
+Specifies the parent of the script object, typically another script object.
+
+For more information, see Inheritance in Script Objects.
+
+propertyLabel
+
+An identifier, unique within the script object, that specifies a characteristic of the object; equivalent to an instance variable.
+
+initialValue
+
+ASLR.txt: lines 6326-6336:
+The makePoint script is a kind of constructor function that creates script objects representing points.
+
+Sending Commands to Script Objects
+
+You can use tell statements to send commands to script objects. For example, the following tell statement sends two sayHello commands to the script object John (defined below):
+
+tell John
+
+    sayHello to "Herb"
+
+    sayHello to "Grace"
+
+ASLR.txt: lines 6429-6438:
+tell script "Counter" to log its nextNumber() -- logs "1"
+
+tell script "Counter" to log its nextNumber() -- logs "2"
+
+Note: Library script instances are unique to, and persistent for the lifetime of, the AppleScript interpreter that loads them. Script Editor, Script Menu, and Folder Actions all run their scripts using a separate interpreter for each script; applets and AppleScriptObjC applications use a single interpreter for the entire application; and other applications may do either. If you are designing a library, try to not rely on persistent state in the library script itself, since its lifetime will vary depending on how the client script is run.
+
+Inheritance in Script Objects
+
+You can use the AppleScript inheritance mechanism to define related script objects in terms of one another. This allows you to share property and handler definitions among many script objects without repeating the shared definitions. Inheritance is described in the following sections:
+
+
+ASLR.txt: lines 6530-6532:
+
+    property vegetable : "Spinach"
+
+
+ASLR.txt: lines 6577-6584:
+The previous example demonstrates an important point about inherited properties: to refer to an inherited property from within a child script object, you must use the reserved word my or of me to indicate that the value to which you’re referring is a property of the current script object. (You can also use the words of parent to indicate that the value is a property of the parent script object.) If you don’t, AppleScript assumes the value is a local variable.
+
+For example, if you refer to vegetable instead of my vegetable in the changeVegetable handler in the previous example, the result is "Spinach". For related information, see The it and me Keywords.
+
+Using the continue Statement in Script Objects
+
+In a child script object, you can define a handler with the same name as a handler defined in its parent object. In implementing the child handler, you have several options:
+
+
+ASLR.txt: lines 6710-6714:
+
+--result: «script Hugh»
+
+ 
+
+
+ASLR.txt: lines 7153-7159:
+Glossary terms are shown in boldface where they are defined.
+
+Important: This document sometimes uses the continuation character (¬) for sample statements that don’t fit on one line on a document page. It also uses the continuation character in some syntax statements to identify an item that, if included, must appear on the same line as the previous item. The continuation character itself is not a required part of the syntax—it is merely a mechanism for including multiple lines in one statement.
+
+The following conventions are used in syntax descriptions:
+
+language element
+
+ASLR.txt: lines 7613-7615:
+After you define a property, you can change its value with the copy or set command.
+
+The value set by a property definition is not reset each time the script is run; instead, it persists until the script is recompiled.
+
+ASLR.txt: lines 7686-7691:
+
+As its name implies, when you use the copy command to create a variable, it always creates a separate copy (though note that a copy of an object specifier still specifies the same object). However, when you use the set command to create a variable, the new variable always refers to the original object or value. You have essentially created another name for the same object.
+
+When more than one variable refers to a changeable (or mutable) object, a change to the object is observable through any of the variables. The types of AppleScript objects that are mutable are date, list, record, and script objects.
+
+For objects that cannot be modified (immutable objects), variables created with the set command may seem like copies—there’s no way to change the object the variables point to, so they seem independent. This is demonstrated in the example in the next section that creates the variables myName and yourName.
+
+ASLR.txt: lines 7725-7751:
+The set command can assign several variables at once using a pattern, which may be a list or record: a list or record of variables on one side, and a list or record of values on the other. Values are matched to variables based on their position for a list, or based on their keys for a record. Not having enough values is an error; if there are too many values, the extra ones are ignored. The order in which the values are evaluated and the variables are assigned is unspecified, but all values are evaluated before any assignments are made.
+
+The Examples section of the set command shows some simple pattern assignments. Here is an example with more complex patterns:
+
+set x to {8, 94133, {firstName:"John", lastName:"Chapman"}}
+
+set {p, q, r} to x
+
+(* now p, q, and r have these values:
+
+                p = 8
+
+                q = 94133
+
+                r = {firstName:"John", lastName:"Chapman"}  *)
+
+set {p, q, {lastName:r}} to x
+
+(* now p, q, and r have these values: p = 8
+
+                                      q = 94133
+
+                                      r = "Chapman" *)
+
+In the final assignment statement above, {lastName:r} is a record that hasn’t been used before in the script, and contains an item with label lastName and value r (a previously defined variable). The variable x has previously been set to have a record that has an item with label lastName and value "Chapman". During the assignment, the value of the item labeled lastName in the new record is set to the value of the item labeled lastName in x—hence it now has the value "Chapman".
+
+As this example demonstrates, the properties of a record need not be given in the same order and need not all be used when you set a pattern to a pattern, as long as the patterns match. For details, see the set command.
+
+ASLR.txt: lines 8683-8684:
+
+The difference between an object specifier and the object it refers to is like the difference between a building address and the building itself. The address is a series of words and numbers, such as “2121 Oak Street, San Francisco, CA” that identifies a location (on a street, in a city, in a state). It is distinct from the building itself. If the building at that location is torn down and replaced with a new building, the address remains the same.
+
+ASLR.txt: lines 9063-9064:
+
+An AppleScript command is one that is built into the AppleScript language. There currently are five such commands: get , set, count, copy, and run. Except for copy , each of these commands can also be implemented by applications. That is, there is an AppleScript version of the command that works on AppleScript objects, but an application can define its own version that works on the object types it defines.
+
+ASLR.txt: lines 9128-9133:
+    duplicate paragraph 1 to before paragraph 4
+
+end tell
+
+The phrases paragraph 1 and before paragraph 4 are called index and relative references, respectively. For more information, see Reference Forms.
+
+
+ASLR.txt: lines 9154-9158:
+The global constant AppleScript provides access to properties you can use throughout your scripts.
+
+You can use the AppleScript identifier itself to distinguish an AppleScript property from a property of the current target with the same name, as shown in the section version.
+
+The following sections describe additional properties of AppleScript.
+
+ASLR.txt: lines 9170-9222:
+
+Note: When an error occurs during script execution, AppleScript signals an error. It doesn’t return error information in the result property. For more information, see AppleScript Error Handling.
+
+Text Constants
+
+AppleScript defines the text properties space, tab, return, linefeed, and quote. You effectively use these properties as text constants to represent white space or a double quote (") character. They are described in the Special String Characters section of the text class.
+
+text item delimiters
+
+AppleScript provides the text item delimiters property for use in processing text. This property consists of a list of strings used as delimiters by AppleScript when it coerces a list to text or gets text items from text strings. When getting text items of text, all of the strings are used as separators. When coercing a list to text, the first item is used as a separator.
+
+Note: Prior to OS X Snow Leopard v10.6, AppleScript only used the first delimiter in the list when getting text items.
+
+Because text item delimiters respect considering and ignoring attributes in AppleScript 2.0, delimiters are case-insensitive by default. Formerly, they were always case-sensitive. To enforce the previous behavior, add an explicit considering case statement.
+
+You can get and set the current value of the text item delimiters property. Normally, AppleScript doesn’t use any delimiters. For example, if the text delimiters have not been explicitly changed, the statement
+
+{"bread", "milk", "butter", 10.45}  as string
+
+returns the following:
+
+"breadmilkbutter10.45"
+
+For printing or display purposes, it is usually preferable to set text item delimiters to something that’s easier to read. For example, the script
+
+set AppleScript's text item delimiters to {", "}
+
+{"bread", "milk", "butter", 10.45}  as string
+
+returns this result:
+
+"bread, milk, butter, 10.45"
+
+The text item delimiters property can be used to extract individual names from a pathname. For example, the script
+
+set AppleScript's text item delimiters to {":"}
+
+get last text item of "Hard Disk:CD Contents:Release Notes"
+
+returns the result "Release Notes".
+
+If you change the text item delimiters property in Script Editor, it remains changed until you restore its previous value or until you quit Script Editor and launch it again. If you change text item delimiters in a script application, it remains changed in that application until you restore its previous value or until the script application quits; however, the delimiters are not changed in Script Editor or in other script applications you run.
+
+Scripts commonly use an error handler to reset the text item delimiters property to its former value if an error occurs (for more on dealing with errors, see AppleScript Error Handling):
+
+set savedDelimiters to AppleScript's text item delimiters
+
+try
+
+    set AppleScript's text item delimiters to {"**"}
+
+    --other script statements...
+
+
+ASLR.txt: lines 9237-9243:
+end try
+version
+
+This property provides the current version of AppleScript. The following script shows how to check for a version greater than or equal to version 1.9. The if statement is wrapped in a considering numeric strings statement so that an AppleScript version such as 1.10.6 compares as larger than, say, version 1.9.
+
+considering numeric strings
+
+
+ASLR.txt: lines 9256-9264:
+Applications can have their own version property, so to access the AppleScript version explicitly, you use the phrase version of AppleScript. This will work inside a tell block that targets another application, such as the following:
+
+tell application "Finder"
+
+    version --result: "10.5.1"
+
+    version of AppleScript --result: "2.0"
+
+end tell
+
+ASLR.txt: lines 9268-9269:
+
+The current application constant is an object specifier—if you ask AppleScript for its value, the result is the object specifier:
+
+ASLR.txt: lines 9299-9362:
+The it and me Keywords
+
+AppleScript defines the keyword me to refer to the current script and the keyword it to refer to the current target. (The current script is the one that is currently being executed; the current target is the object that is the current default target for commands.) It also defines my as a synonym for of me and its as a synonym for of it.
+
+If a script hasn’t targeted anything, it and me refer to the same thing—the script—as shown in the following example:
+
+-- At the top-level of the script:
+
+me --result: «script» (the top-level script object)
+
+it --result: «script» (same as it, since no target set yet)
+
+A tell statement specifies a default target. In the following example, the default target is the Finder application:
+
+-- Within a tell block:
+
+tell application "Finder" -- sets target
+
+    me --result: «script» (still the top-level script object)
+
+    it --result: application "Finder" (target of the tell statement)
+
+end tell
+
+You can use the words of me or my to indicate that the target of a command is the current script and not the target of the tell statement. In the following example, the word my indicates that minimumValue() handler is defined by the script, not by Finder:
+
+tell application "Finder"
+
+    set fileCount to count files in front window
+
+    set myCount to my minimumValue(fileCount, 100)
+
+    --do something with up to the first 100 files…
+
+end tell
+
+You can also use of me or my to distinguish script properties from object properties. Suppose there is a TextEdit document open named “Simple.rtf”:
+
+tell document 1 of application "TextEdit"
+
+    name --result: "Simple.rtf" (implicitly uses target of tell)
+
+    name of it --result: "Simple.rtf" (specifies target of tell)
+
+    me --result: «script» (top-level script object, not target of tell)
+
+end tell
+
+The following example shows how to specify different version properties in a Finder tell statement. The Finder is the default target, but using version of me, my version, or version of AppleScript allows you to specify the version of the top-level script object. (The top-level script object returns the AppleScript version, because it inherits from AppleScript, as described in The AppleScript Inheritance Chain.)
+
+tell application "Finder"
+
+    version --result: "10.5.1" (Finder version is the default in tell block)
+
+    its version --result: "10.5.1" (specifically asks for Finder version)
+
+    version of me --result: "2.0" (AppleScript version)
+
+    my version --result: "2.0" (AppleScript version)
+
+    version of AppleScript --result: "2.0" (AppleScript version)
+
+end tell
+
+
+ASLR.txt: lines 9364-9534:
+
+Aliases and Files
+
+To refer to items and locations in the macOS file system, you use alias objects and file objects.
+
+An alias object is a dynamic reference to an existing file system object. Because it is dynamic, it can maintain the link to its designated file system object even if that object is moved or renamed.
+
+A file object represents a specific file at a specific location in the file system. It can refer to an item that does not currently exist, such as the name and location for a file that is to be created. A file object is not dynamic, and always refers to the same location, even if a different item is moved into that place. The POSIX file pseudo-class is roughly synonymous with file: POSIX file specifiers evaluate to a file object, but they use different semantics for the name, as described in Specifying Paths.
+
+The following is the recommended usage for these types:
+
+Use an alias object to refer to existing file system objects.
+
+Use a file object to refer to a file that does not yet exist.
+
+Use a POSIX file specifier if you want to specify the file using a POSIX path.
+
+The following sections describe how to specify file system objects by path and how to work with them in your scripts.
+
+Specifying Paths
+
+You can create alias objects and file objects by supplying a name specifier, where the name is the path to an item in the file system.
+
+For alias and file specifiers, the path is an HFS path, which takes the form "disk:item:subitem:subsubitem:...:item". For example, "Hard_Disk:Applications:Mail.app" is the HFS path to the Mail application, assuming your boot drive is named "Hard_Disk".
+
+HFS paths with a leading colon, such as ":folder:file", are resolved relative to the HFS working directory. However, their use is discouraged, because the location of the HFS working directory is unspecified, and there is no way to control it from AppleScript.
+
+For POSIX file specifiers, the path is a POSIX path, which takes the form "/item/subitem/subsubitem/.../item". The disk name is not required for the boot disk. For example, "/Applications/Mail.app" is the POSIX path to the Mail application. You can see the POSIX path of an item in Finder in the "Where" field of its Get Info window. Despite the name, POSIX file specifiers may refer to folders or disks. Use of "~" to specify a home directory is not supported.
+
+POSIX paths without a leading slash, such as "folder/file", are resolved relative to the POSIX working directory. This is supported, but only is useful for scripts run from the shell—the working directory is the current directory in the shell. The location of the POSIX working directory for applications is unspecified.
+
+Working With Aliases
+
+AppleScript defines the alias class to represent aliases. An alias can be stored in a variable and used throughout a script.
+
+The following script first creates an alias to an existing file in the variable notesAlias, then uses the variable in a tell statement that opens the file. It uses a try statement to check for existence of the alias before creating it, so that the alias is only created once, even if the script is run repeatedly.
+
+try
+
+    notesAlias -- see if we've created the alias yet
+
+on error
+
+    -- if not, create it in the error branch
+
+    set notesAlias to alias "Hard_Disk:Users:myUser:Feb_Notes.rtf"
+
+end try
+
+-- now open the file from the alias:
+
+tell application "TextEdit" to open notesAlias
+
+Finding the object an alias refers to is called resolving an alias. AppleScript 2.0 attempts to resolve aliases only when you run a script. However, in earlier versions, AppleScript attempts to resolve aliases at compile time.
+
+Once you run the previous example, creating the alias, the script will be able to find the original file when you run it again, even if the file’s name or location changes. (However, if you run the script again after recompiling it, it will create a new alias.)
+
+You can get the HFS path from an alias by coercing it to text:
+
+notesAlias as text --result: "Hard_Disk:Users:myUser:Feb_Notes.rtf"
+
+You can use the POSIX path property to obtain a POSIX-style path to the item referred to by an alias:
+
+POSIX path of notesAlias --result: "/Feb_Notes.rtf"
+
+If an alias doesn’t refer to an existing file system object then it is broken. You can’t create an alias to an object that doesn’t exist, such as a file you plan to create. For that you use a file object, described in the next section.
+
+For a sample script that shows how a script application can process a list of aliases it receives when a user drops one or more file icons on it, see open Handlers.
+
+Working With Files
+
+AppleScript uses file objects to represent files in scripts. A file object can be stored in a variable and used throughout a script. The following script first creates a file object for an existing file in the variable notesFile, then uses the variable in a tell statement that opens the file:
+
+set notesFile to POSIX file "/Users/myUser/Feb_Meeting_Notes.rtf"
+
+tell application "TextEdit" to open notesFile
+
+You can use a file object to specify a name and location for a file that may not exist:
+
+set newFile to POSIX file "/Users/myUser/BrandNewFile.rtf"
+
+Similarly, you can let a user specify a new file with the choose file name command, then use the returned file object to create the file. In the following example, if the user cancels the choose file name dialog, the rest of the script is not executed. If the user does supply a file name, the script opens the file, creating it if necessary, then uses a try statement to make sure it closes the file when it is finished writing to it.
+
+set theFile to choose file name
+
+set referenceNumber to open for access theFile with write permission
+
+try
+
+    -- statements to write to the file
+
+on error
+
+    close access referenceNumber
+
+end try
+
+close access referenceNumber
+
+Typically, when you pass a file object to a command that uses it to operate on a new or existing item in the file system, the components of the path must exist for the command to succeed.
+
+Remote Applications
+
+A script can target an application on a remote computer if remote applications are enabled on that computer, and if the script specifies the computer with an eppc-style specifier.
+
+Enabling Remote Applications
+
+For a script to send commands to a remote application, the following conditions must be satisfied:
+
+The computer that contains the application and the computer on which the script is run must be connected to each other through a network.
+
+Remote Apple Events (set in the Sharing preferences pane) must be enabled on the remote computer and user access must be provided (you can allow access for all users or for specified users only).
+
+If the specified remote application is not running, you must run it.
+
+You must authenticate as admin when you compile or run the script.
+
+eppc-Style Specifiers
+
+An eppc-style specifier takes the following format:
+
+eppc://[user[:password]@]IP_address
+ip_address
+
+Either a numeric IP address in dotted decimal form (four numbers, from 0 to 255, separated by periods; for example, 123.23.23.123) or a hostname. A hostname can be a Bonjour name.
+
+The following are examples of valid eppc-style specifiers. If you supply the user name and password, no authentication is required. If you do not supply it, authentication may be required.
+
+"eppc://myCoolMac.local" -- hostname, no user or pwd
+
+"eppc://myUserName:pwd@myCoolMac.local" -- user, pwd, and hostname
+
+"eppc://123.23.23.123" -- IP address, no user or pwd
+
+"eppc://myUserName:pwd@123.23.23.123" -- user, pwd, and IP address
+
+"eppc://myUserName@server.company.com" -- server address, user
+
+Important: If a part of the eppc-style specifier contains non-UTF-8 characters or white space, it must be URL-encoded: for example, here is a user name that contains a space:
+
+   John%20Smith.
+
+Targeting Remote Applications
+
+You can target an application that is running on a remote machine and you can launch applications on remote machines that are not currently running.
+
+The following example uses an eppc-style specifier to target the Finder on a remote computer. It includes a user name and password, so no authentication is required.
+
+set remoteMachine to "eppc://userName:pwd@MacName.local"
+
+tell app "Finder" of machine remoteMachine to close front window
+
+Important: If you compile an erroneous eppc-style address, you will have to quit and relaunch Script Editor for changes to that address to take effect.
+
+In some cases, you’ll need to use a using terms from statement to tell AppleScript to compile against the local version of an application. The following example uses that technique in telling the remote Finder application to open the TextEdit application:
+
+set remoteFinder to application "Finder" of machine ¬
+
+    "eppc://myUserName:pwd@123.23.23.123"
+
+ 
+
+using terms from application "Finder"
+
+    tell remoteFinder
+
+        open application file id "com.apple.TextEdit"
+
+    end tell
+
+end using terms from
+
+ASLR.txt: lines 9538-9585:
+Debugging AppleScript Scripts
+
+AppleScript does not include a built-in debugger, but it does provide several simple mechanisms to help you debug your scripts or just observe how they are working.
+
+Feedback From Your Script
+
+You can insert various statements into a script to indicate the current location and other information. In the simplest case, you can insert a beep command in a location of interest:
+
+beep 3 -- three beeps; a very important part of the script!
+
+A display dialog command can display information about what’s happening in a script and, like a breakpoint, it halts execution until you dismiss it (or until it times out, depending on the parameters you pass). The following example displays the current script location and the value of a variable:
+
+display dialog "In factorial routine; x = " & (x as string)
+
+The say command can get your attention by speaking the specified text. In the following example, currentClient is a text object that stores a client name:
+
+say "I'm in the clientName handler. The client is " & currentClient
+Logging
+
+Script Editor can display a log of the Apple events that are sent during execution of a script. In the Script Editor Preferences, you can also choose to keep a history of recent results or event logs.
+
+In addition, you can insert log statements into a script. Log output is shown in the Event Log pane of a script window, and also in the Event Log History window, if it is open.
+
+The following simple example logs the current word in a repeat with loopVariable (in list) statement:
+
+set wordList to words in "Where is the hammer?"
+
+repeat with currentWord in wordList
+
+    log currentWord
+
+    if contents of currentWord is equal to "hammer" then
+
+        display dialog "I found the hammer!"
+
+    end if
+
+end repeat
+
+The following shows how the words appear in the log when the script is run:
+
+    (*Where*)
+
+    (*is*)
+
+    (*the*)
+
+    (*hammer*)
+
+ASLR.txt: lines 10096-10097:
+Writes data to a file that was opened for access with write permission.
+
+
+ASLR.txt: lines 10408-10412:
+Discussion
+
+The name “ASCII” is something of a misnomer. ASCII character uses the primary text encoding, as determined by the user’s language preferences, to map between integers and characters. If the primary language is English, the encoding is Mac OS Roman, if it is Japanese, the encoding is MacJapanese, and so on. For integers below 128, this is generally the same as ASCII, but for integers from 128 to 255, the results vary considerably.
+
+Because of this unpredictability, ASCII character and ASCII number are deprecated starting in AppleScript 2.0. Use the id property of the text class instead, since it always uses the same encoding, namely Unicode.
+
+ASLR.txt: lines 10871-10873:
+Discussion
+
+For historical reasons, choose from list is the only dialog command that returns a result (false) instead of signaling an error when the user presses the “Cancel” button.
+
+ASLR.txt: lines 11036-11087:
+copy
+
+Copies one or more values, storing the result in one or more variables. This command only copies AppleScript values, not application-defined objects.
+
+Syntax
+copy	expression	required
+to	variablePattern	required
+Parameters
+expression
+
+The expression whose value is to be copied.
+
+to  variablePattern
+
+The name of the variable or pattern of variables in which to store the value or pattern of values. Patterns may be lists or records.
+
+Result
+
+The new copy of the value.
+
+Examples
+
+As mentioned in the Discussion, copy creates an independent copy of the original value, and it creates a deep copy. For example:
+
+set alpha to {1, 2, {"a", "b"}}
+
+copy alpha to beta
+
+set item 2 of item 3 of alpha to "change" --change the original list
+
+set item 1 of beta to 42 --change a different item in the copy
+
+{alpha, beta}
+
+--result: {{1, 2, {"a", "change"}}, {42, 2, {"a", "b"}}}
+
+Each variable reflects only the changes that were made directly to that variable. Compare this with the similar example in set.
+
+See the set command for examples of using variable patterns. The behavior is the same except that the values are copied.
+
+Discussion
+
+The copy command may be used to assign new values to existing variables, or to define new variables. See Declaring Variables with the copy Command for additional details.
+
+Using the copy command creates a new value that is independent of the original—a subsequent change to that value does not change the original value. The copy is a “deep” copy, so sub-objects, such as lists within lists, are also copied. Contrast this with the behavior of the set command.
+
+When using copy with an object specifier, the specifier itself is the value copied, not the object in the target application that it refers to. copy therefore copies the object specifier, but does not affect the application data at all. To copy the object in the target application, use the application’s duplicate command, if it has one.
+
+Special Considerations
+
+The syntax put expression into variablePattern is also supported, but is deprecated. It will be transformed into the copy form when you compile the script.
+
+
+ASLR.txt: lines 11178-11181:
+Discussion
+
+delay does not make any guarantees about the actual length of the delay, and it cannot be more precise than 1/60th of a second. delay is not suitable for real-time tasks such as audio-video synchronization.
+
+
+ASLR.txt: lines 11493-11551:
+do shell script
+
+Executes a shell script using the sh shell.
+
+Syntax
+do shell script	text	required
+as	class	optional
+administrator privileges	boolean	optional
+user name	text	optional
+password	text	optional
+altering line endings	boolean	optional
+Parameters
+text
+
+The shell script to execute.
+
+as class
+
+Specifies the desired type of the result. The raw bytes returned by the command will be interpreted as the specified class.
+
+Default Value:
+
+«class utf8»: UTF-8 text. If there is no as parameter and the output is not valid UTF-8, the output will be interpreted as text in the primary encoding.
+
+administrator privileges  boolean
+
+Execute the command as the administrator? Once a script is correctly authenticated, it will not ask for authentication again for five minutes. The elevated privileges and the grace period do not extend to any other scripts or to the rest of the system. For security reasons, you may not tell another application to do shell script with administrator privileges. Put the command outside of any tell block, or put it inside a tell me block.
+
+Default Value:
+
+false
+
+user name  text
+
+The name of an administrator account. You can avoid a password dialog by specifying a name in this parameter and a password in the password parameter. If you specify a user name, you must also specify a password.
+
+password  text
+
+An administrator password, typically used in conjunction with the administrator specified by the user name parameter. If user name is omitted, it is assumed to be the current user.
+
+altering line endings  boolean
+
+Should the do shell script command change all line endings in the command output to Mac-style and trim a trailing one? For example, the result of do shell script "echo foo; echo bar" is "foo\rbar", not the "foo\nbar\n" that the shell script actually returned.
+
+Default Value:
+
+true
+
+Result
+
+The output of the shell script.
+
+Signals an error if the shell script exits with a non-zero status. The error number will be the status, the error message will be the contents of stderr.
+
+Examples
+do shell script "uptime"
+Discussion
+
+For additional documentation and examples of the do shell script command, see Technical Note TN2065, do shell script in AppleScript.
+
+ASLR.txt: lines 11553-11610:
+get
+
+Evaluates an object specifier and returns the result.
+
+The command name get is typically optional—expressions that appear as statements or operands are automatically evaluated as if they were preceded by get. However, get can be used to force early evaluation of part of an object specifier.
+
+Syntax
+get	specifier	required
+ 	as	class	optional
+Parameters
+specifier
+
+An object specifier to be evaluated. If the specifier refers to an application-defined object, the get command is sent to that application. Technically, all values respond to get, but for all values other than object specifiers, get is an identity operation: the result is the exact same value.
+
+as  class
+
+The desired class for the returned data. If the data is not of the desired type, AppleScript attempts to coerce it to that type.
+
+Default Value:
+
+None; no coercion is performed.
+
+Result
+
+The value of the evaluated expression. See Reference Forms for details on what the results of evaluating various object specifiers are.
+
+Examples
+
+get can get properties or elements of AppleScript-defined objects, such as lists:
+
+get item 1 of {"How", "are", "you?"}  --result: "How"
+
+…or of application-defined objects:
+
+tell application "Finder" to get name of home  --result: "myname"
+
+As noted above, the get is generally optional. For example, these statements are equivalent to the above two:
+
+item 1 of {"How", "are", "you?"}  --result: "How"
+
+tell application "Finder" to name of home  --result: "myname"
+
+However, an explicit get can be useful for forcing early evaluation of part of an object specifier. Consider:
+
+tell application "Finder" to get word 1 of name of home
+
+--Finder got an error: Can’t get word 1 of name of folder "myname" of folder "Users" of startup disk.
+
+This fails because Finder does not know about elements of text, such as words. AppleScript does, however, so the script has to make Finder get only the name of ... part:
+
+tell application "Finder" to get word 1 of (get name of home)
+
+--result: "myname"
+
+The explicit get forces that part of the specifier to be evaluated; Finder returns a text result, from which AppleScript can then get word 1.
+
+For more information on specifiers, see Object Specifiers.
+
+
+ASLR.txt: lines 12413-12416:
+with seed  integer
+
+An initial seed for the random number generator. Once called with any particular seed value, random number will always generate the same sequence of numbers. This can be useful when testing randomized algorithms: you can force it to behave the same way every time.
+
+
+ASLR.txt: lines 12540-12607:
+
+Rounds a number to an integer.
+
+Syntax
+round	real	required
+rounding	roundingDirection	optional
+Parameters
+real
+
+The number to round.
+
+rounding roundingDirection
+
+The direction to round. You may specify one of the following rounding directions:
+
+up
+
+Rounds to the next largest integer. This is the same as the math “ceiling” function.
+
+down
+
+Rounds down to the next smallest integer. This is the same as the math “floor” function.
+
+toward zero
+
+Rounds toward zero, discarding any fractional part. Also known as truncation.
+
+to nearest
+
+Rounds to the nearest integer; .5 cases are rounded to the nearest even integer. For example, 1.5 rounds to 2, 0.5 rounds to 0. Also known as “unbiased rounding” or “bankers’ rounding.” See Discussion for details.
+
+as taught in school
+
+Rounds to the nearest integer; .5 cases are rounded away from zero. This matches the rules commonly taught in elementary mathematics classes.
+
+Default Value:
+
+to nearest
+
+Result
+
+The rounded value, as an integer if it is within the allowable range (±229), or as a real if not.
+
+Examples
+
+Rounding up or down is not the same as rounding away from or toward zero, though it may appear so for positive numbers. For example:
+
+round 1.1 rounding down --result: 1
+
+round -1.1 rounding down --result: -2
+
+To round to the nearest multiple of something other than 1, divide by that number first, round, and then multiply. For example, to round a number to the nearest 0.01:
+
+set x to 5.1234
+
+set quantum to 0.01
+
+(round x/quantum) * quantum --result: 5.12
+Discussion
+
+The definition of to nearest is more accurate than as taught in school, but may be surprising if you have not seen it before. For example:
+
+round 1.5 --result: 2
+
+round 0.5 --result: 0
+
+Rounding 1.5 to 2 should come as no surprise, but as taught in school would have rounded 0.5 up to 1. The problem is that when dealing with large data sets or with many subsequent rounding operations, always rounding up introduces a slight upward skew in the results. The round-to-even rule used by to nearest tends to reduce the total rounding error, because on average an equal portion of numbers will round down as will round up.
+
+
+ASLR.txt: lines 12690-12750:
+say
+
+Speaks the specified text.
+
+Syntax
+say	text	required
+displaying	text	optional
+using	text	optional
+waiting until completion	boolean	optional
+saving to	fileSpecifier	optional
+Parameters
+text
+
+The text to speak.
+
+displaying  text
+
+The text to display in the feedback window, if different from the spoken text. This parameter is ignored unless Speech Recognition is turned on (in System Preferences).
+
+using  text
+
+The voice to speak with—for example: "Zarvox".
+
+You can use any of the voices from the System Voice pop-up on the Text to Speech tab in the Speech preferences pane.
+
+Default Value:
+
+The current System Voice (set in the Speech panel in System Preferences.
+
+waiting until completion  boolean
+
+Should the command wait for speech to complete before returning? This parameter is ignored unless Speech Recognition is turned on (in System Preferences).
+
+Default Value:
+
+true
+
+saving to  (alias | file)
+
+An alias or file specifier to an AIFF file (existing or not) to contain the sound output. You can only use an alias specifier if the file exists. If this parameter is specified, the sound is not played audibly, only saved to the file.
+
+Default Value:
+
+None; the text is spoken out loud, and no file is saved.
+
+Result
+
+None.
+
+Examples
+say "You are not listening to me!" using "Bubbles" -- result: spoken in Bubbles
+
+The following example saves the spoken text into a sound file:
+
+set soundFile to choose file name -- specify name ending in ".aiff"
+
+    --result: a file URL
+
+say "I love oatmeal." using "Victoria" saving to soundFile
+
+    --result: saved to specified sound file
+
+ASLR.txt: lines 13056-13092:
+summarize
+
+Summarizes the specified text or text file.
+
+Syntax
+summarize	textSpecifier	required
+in	integer	optional
+Parameters
+textSpecifier
+
+The text, or an alias to a text file, to summarize.
+
+in  integer
+
+The number of sentences desired in the summary.
+
+Default Value:
+
+1
+
+Result
+
+A text object containing a summarized version of the text or file.
+
+Examples
+
+This example summarizes Lincoln’s famous Gettysburg Address down to one sentence—a tough job even for AppleScript:
+
+set niceSpeech to "Four score and seven years ago our fathers brought forth on this continent a new nation, conceived in Liberty, and dedicated to the proposition that all men are created equal.
+
+Now we are engaged in a great civil war, testing whether that nation, or any nation, so conceived and so dedicated, can long endure. We are met on a great battle-field of that war. We have come to dedicate a portion of that field, as a final resting place for those who here gave their lives that that nation might live. It is altogether fitting and proper that we should do this.
+
+But, in a larger sense, we can not dedicate—we can not consecrate—we can not hallow—this ground. The brave men, living and dead, who struggled here, have consecrated it, far above our poor power to add or detract. The world will little note, nor long remember what we say here, but it can never forget what they did here. It is for us the living, rather, to be dedicated here to the unfinished work which they who fought here have thus far so nobly advanced. It is rather for us to be here dedicated to the great task remaining before us—that from these honored dead we take increased devotion to that cause for which they gave the last full measure of devotion—that we here highly resolve that these dead shall not have died in vain—that this nation, under God, shall have a new birth of freedom—and that government of the people, by the people, for the people, shall not perish from the earth."
+
+set greatSummary to summarize niceSpeech in 1
+
+display dialog greatSummary --result: displays one inspiring sentence
+
+ASLR.txt: lines 13141-13218:
+system info
+
+Gets information about the system.
+
+Syntax
+system info		required
+Result
+
+A record containing various information about the system and the current user. This record contains the following fields:
+
+AppleScript version (a text object)
+
+The version number of AppleScript, for example, "2.0". This can be useful for testing for the existence of AppleScript features. When comparing version numbers, use considering numeric strings to make them compare in numeric order, since standard lexicographic ordering would consider "1.9" to come after "1.10".
+
+AppleScript Studio version (a text object)
+
+The version number of AppleScript Studio, for example, "1.5".
+
+Note: AppleScript Studio is deprecated in OS X v10.6.
+
+system version (a text object)
+
+The version number of OS X, for example, "10.5.1".
+
+short user name (a text object)
+
+The current user’s short name, for example, "hoser". This is set in the Advanced Options panel in the Accounts preference pane, or in the “Short Name” field when creating the account. This is also available from System Events using name of current user.
+
+long user name (a text object)
+
+The current user’s long name, for example, "Random J. Hoser". This is the “User Name” field in the Accounts preference pane, or in the “Name” field when creating the account. This is also available from System Events using full name of current user.
+
+user ID (an integer)
+
+The current user’s user ID. This is set in the Advanced Options panel in the Accounts preference pane.
+
+user locale (a text object)
+
+The current user’s locale code, for example "en_US".
+
+home directory (an alias object)
+
+The location of the current user’s home folder. This is also available from Finder’s home property, or System Events’ home folder property.
+
+boot volume (a text object)
+
+The name of the boot volume, for example, "Macintosh HD". This is also available from Finder or System Events using name of startup disk.
+
+computer name (a text object)
+
+The computer’s name, for example "mymac". This is the “Computer Name” field in the Sharing preference pane.
+
+host name (a text object)
+
+The computer’s DNS name, for example "mymac.local".
+
+IPv4 address (a text object)
+
+The computer’s IPv4 address, for example "192.201.168.13".
+
+primary Ethernet address (a text object)
+
+The MAC address of the primary Ethernet interface, for example "00:1c:63:91:4e:db".
+
+CPU type (a text object)
+
+The CPU type, for example "Intel 80486".
+
+CPU speed (an integer)
+
+The clock speed of the CPU in MHz, for example 2400.
+
+physical memory (an integer)
+
+The amount of physical RAM installed in the computer, in megabytes (MB), for example 2048.
+
+Examples
+system info --result: long record of information
+
+ASLR.txt: lines 13723-13782:
+considering and ignoring Statements
+
+The considering and ignoring statements cause AppleScript to consider or ignore specific characteristics as it executes groups of statements. There are two kinds of considering and ignoring statements:
+
+Those that specify attributes to be considered or ignored in performing text comparisons.
+
+Those that specify whether AppleScript should consider or ignore responses from an application.
+
+considering / ignoring (text comparison)
+
+Specify how AppleScript should treats attributes, such as case, in performing text comparisons.
+
+Syntax
+considering attribute [, attribute ... and attribute ] ¬
+
+   [ but ignoring attribute [, attribute ... and attribute ] ]
+
+      [ statement ]...
+
+end considering
+
+ignoring attribute [, attribute ... and attribute ] ¬
+
+   [ but considering attribute [, attribute ... and attribute ] ]
+
+      [ statement ]...
+
+end ignoring
+
+Placeholders
+attribute
+
+A characteristic of the text:
+
+case
+
+If this attribute is ignored, uppercase letters are not distinguished from lowercase letters. See Special Considerations below for related information. See also greater than, less than for a description of how AppleScript sorts letters, punctuation, and other symbols.
+
+diacriticals
+
+If this attribute is ignored, text objects are compared as if no diacritical marks (such as ´, `, ˆ, ¨, and ˜) are present; for example, "résumé" is equal to "resume".
+
+hyphens
+
+If this attribute is ignored, text objects are compared as if no hyphens are present; for example "anti-war" is equal to "antiwar".
+
+numeric strings
+
+By default, this attribute is ignored, and text strings are compared according to their character values. For example, if this attribute is considered, "1.10.1" > "1.9.4" evaluates as true; otherwise it evaluates as false. This can be useful in comparing version strings.
+
+punctuation
+
+If this attribute is ignored,text objects are compared as if no punctuation marks (such as . , ? : ; ! ' ") are present; for example "What? he inquired." is equal to "what he inquired".
+
+white space
+
+If this attribute is ignored, the text objects are compared as if spaces, tab characters, and return characters were not present; for example "Brick house" would be considered equal to "Brickhouse".
+
+Default Value:
+Case and numeric strings are ignored; all others are considered.
+
+ASLR.txt: lines 13840-13904:
+You can nest considering and ignoring statements. If the same attribute appears in both an outer and inner statement, the attribute specified in the inner statement takes precedence. When attributes in an inner considering or ignoring statement are different from those in outer statements, they are added to the attributes to be considered and ignored.
+
+Special Considerations
+
+Because text item delimiters (described in version) respect considering and ignoring attributes in AppleScript 2.0, delimiters are case-insensitive by default. Formerly, they were always case-sensitive. To enforce the previous behavior, add an explicit considering case statement.
+
+considering and ignoring are fully Unicode-aware. For example, with ignoring case, “Горбач” is equal to “ГОРБАЧ”. Also, the characters ignored by diacriticals, hyphens, punctuation, and white space are defined by Unicode character classes:
+
+ignoring punctuation ignores category P*, which includes left- and right-quotation marks such as “ ” « ».
+
+ignoring hyphens ignores category Pd, which includes em- and en-dashes.
+
+ignoring whitespace ignores category Z*, plus tab (\t), return (\r), and linefeed (\n), which includes em-, en-, and non-breaking spaces.
+
+Para
+
+considering / ignoring (application responses)
+
+Permits a script to continue without waiting for an application to respond to commands that target it.
+
+Syntax
+considering | ignoring  application responses
+   [ statement ]...
+end [ considering | ignoring ]
+
+Placeholders
+statement
+
+Any AppleScript statement.
+
+Examples
+
+The following example shows how to use an ignoring statement so that a script needn’t wait while Finder is performing a potentially lengthy task:
+
+tell application "Finder"
+
+    ignoring application responses
+
+        empty the trash
+
+    end ignoring
+
+end tell
+
+Your script may want to ignore most responses from an application, but wait for a response to a particular statement. You can do so by nesting considering and ignoring statements:
+
+tell application "Finder"
+
+    ignoring application responses
+
+        empty the trash
+
+        -- other statements that ignore application responses
+
+        considering application responses
+
+            set itemName to name of first item of startup disk
+
+        end considering
+
+        -- other statements that ignore application responses
+
+    end ignoring
+
+end tell
+
+ASLR.txt: lines 14331-14440:
+
+You can use an existing variable as the loop variable in a repeat with loopVariable (in list) statement or define a new one in the repeat with… statement. In either case, the loop variable is assigned a new value—the current item in the loop—at the start of each loop. After the loop completes, the loop variable retains its last value.
+
+This example uses an existing variable as the loop variable:
+
+set currentIncrement to 0
+
+-- The loop variable is an existing variable, defined above
+
+repeat with currentIncrement in {1, 2, 3, 4}
+
+    -- Do something
+
+end repeat
+
+currentIncrement
+
+--result: item 4 of {1, 2, 3, 4} --result: the last value of the loop variable
+
+This example defines a new variable as the loop variable:
+
+-- The loop variable is a new variable, defined in the repeat statement
+
+repeat with currentIncrement in {1, 2, 3, 4}
+
+    -- Do something
+
+end repeat
+
+currentIncrement
+
+--result: item 4 of {1, 2, 3, 4} --result: the last value of the loop variable
+
+You can change the value of the loop variable inside the loop body, but it gets reset to the next loop value the next time through the loop. Again, after the loop completes, the loop variable retains its last value.
+
+repeat with currentIncrement in {1, 2, 3, 4}
+
+    display dialog currentIncrement
+
+    set currentIncrement to 0
+
+end repeat
+
+currentIncrement
+
+--result: 0
+
+AppleScript evaluates loopVariable in list as an object specifier—a reference to the current item in the list—that takes on the value of item 1 of list, item 2 of list, item 3 of list, and so on until it reaches the last item in the list. For example:
+
+repeat with i in {1, 2, 3, 4}
+
+    set listItem to i
+
+end repeat
+
+--result: item 4 of {1, 2, 3, 4} --result: an object specifier
+
+To access the actual value of an item in the list, rather than a reference to the item, use the contents of property:
+
+repeat with i in {1, 2, 3, 4}
+
+    set listItem to contents of i
+
+end repeat
+
+--result: 4
+
+This technique is especially important when performing a comparison, as you typically want to test whether the value of a list item matches another value. The following script examines a list of words, displaying a dialog if it finds the word “hammer” in the list. To perform a proper comparison, the test statement (if (contents of currentWord) is equal to "hammer" then) compares the contents of the current list item, rather than the object specifier itself.
+
+set wordList to words in "Where is the hammer?"
+
+repeat with currentWord in wordList
+
+    log currentWord
+
+    if (contents of currentWord) is equal to "hammer" then
+
+        display dialog "I found the hammer!"
+
+    end if
+
+end repeat
+
+Note: In the previous example, the statement log currentWord logs the current list item to Script Editor’s log pane. For more information about logging, see Debugging AppleScript Scripts.
+
+You can also use list variables directly in expressions, which may result in an implicit coercion from an object reference to a specific data type. In the following example, the loop variable i is implicitly coerced to an integer (equivalent to explicitly retrieving the contents of i) by using the + operator to add it to a variable containing an integer.
+
+set total to 0
+
+repeat with i in {1, 2, 3, 4}
+
+    set total to total + i
+
+end repeat
+
+--result: 10
+tell Statements
+
+A tell statement specifies the default target—that is, the object to which commands are sent if they do not include a direct parameter. Statements within a tell statement that use terminology from the targeted object are compiled against that object’s dictionary.
+
+The object of a tell statement is typically a reference to an application object or a script object. For example, the following tell statement targets the Finder application:
+
+tell application "Finder"
+
+    set frontWindowName to name of front window
+
+    -- any number of additional statements can appear here
+
+end tell
+
+
+ASLR.txt: lines 14640-14800:
+
+use Statements
+
+A use statement declares a required resource for a script—an application, script library, framework, or version of AppleScript itself—and can optionally import terminology from the resource for use elsewhere in the script. The effects and syntax of use vary slightly depending on the used resource; the different cases are described below.
+
+Note: use statements are supported in OS X Mavericks v10.9 (AppleScript 2.3) and later.
+
+The basic function of use is to require that a resource be present before the script begins executing. If the requirement cannot be met, the script will fail to run. A use statement can also specify a minimum version for the required resource, such as a minimum compatible version of an application. In this example, AppleScript will ensure that Safari version 7.0 or later is available:
+
+use application "Safari" version "7.0"
+
+use statements can also import terminology from the used resource, making the terms available throughout the script without requiring the use of tell or using terms from. AppleScript tracks where terms were imported from, and sends events that use those terms to that target. Ordinarily, commands are sent to the current target (it) as described in Target, but imported terminology overrides this. If…
+
+the event identifier is imported
+
+the direct parameter is an imported class or enumeration identifier
+
+the direct parameter is an object specifier ending with an imported term
+
+…then the command is sent to the import source instead. This happens even if the command is inside a tell block for a different target. For example, this script uses a command from Safari:
+
+use application "Safari"
+
+search the web for "AppleScript"
+
+Importing happens by default, but can be suppressed using the without importing parameter, if applicable. You can use this to add requirements to existing scripts without changing anything else about the script:
+
+use application "Safari" version "7.0" without importing
+
+Because Safari's terms are not imported, the script will still need to use tell to send it events.
+
+use (AppleScript)
+
+Declares a required minimum version of AppleScript, and that the script expects a newer behavior for how scripting additions are handled, described in use (scripting additions).
+
+Syntax
+use AppleScript [ version versionText ] 
+
+Placeholders
+versionText
+
+The required minimum version of AppleScript, as a version string such as "2.3.2". If omitted, its default value is 2.3, the version in which use was introduced. This value is always text, not a number, and is compared as if considering numeric strings is in effect. For example, "2.10" is greater than "2.3", because 10 is greater than 3.
+
+Examples
+
+In its simplest form, use can be used to declare that the script uses AppleScript:
+
+use AppleScript
+
+This also implicitly means that the script uses AppleScript version 2.3 or later, when use was first introduced, and that the script expects a newer behavior for how scripting additions are handled, described in use (scripting additions).
+
+A use command can also explicitly specify a minimum required version of AppleScript:
+
+use AppleScript version "2.3.2"
+use (scripting additions)
+
+Declares that a script uses scripting additions.
+
+Syntax
+use scripting additions ¬ 
+   [ with importing | without importing | importing boolean ]
+
+Placeholders
+boolean
+
+A boolean value,true or false. AppleScript will recompile this to with importing or without importing. The default is with importing.
+
+Examples
+
+Use use scripting additions to explicitly declare that the script uses scripting addition commands:
+
+use scripting additions
+Discussion
+
+Scripting addition commands are handled differently if a script has use commands. If a script has one or more use commands of any kind, scripting addition commands are not available by default. You must explicitly indicate that you wish to use scripting additions, either with a use or using terms from command.
+
+use scripting additions
+
+display dialog "hello world"
+using terms from scripting additions
+
+   display dialog "hello world"
+
+end using terms from
+
+If a script uses use scripting additions, AppleScript may optimize scripting addition commands, sending them to the current application instead of the current target (it) when it does not change the meaning to do so. For example, random number does not need to be sent to another application to work correctly, and will always be sent to the current application when imported with use. Without a use scripting additions command, AppleScript must use a less efficient dispatching scheme, so explicitly declaring them is recommended.
+
+use (application or script)
+
+Declares a required application or script library, and may import its terms for use later in the script.
+
+Syntax
+use [ identifier : ] ( script | application ) specifier ¬
+   [ version versionText ] ¬
+   [ with importing | without importing | importing boolean ]
+
+Placeholders
+versionText
+
+The required minimum version of the resource as a version number, such as "2.3.2". This value is always text, not a number, and is compared as if considering numeric strings is in effect. For example, "2.10" is greater than "2.3", because 10 is greater than 3.
+
+identifier
+
+An optional identifier for the resource.
+
+specifier
+
+Specifier data for the resource. This is typically a name, as in use application "Finder" or use script "My Library", but may be any valid specifier form, such as by ID, as in use application id "com.apple.mail".
+
+boolean
+
+A boolean value,true or false. AppleScript will recompile this to with importing or without importing. The default is with importing.
+
+Examples
+
+A use command may refer to an application:
+
+use application "Finder"
+
+…or a script library:
+
+use script "Happy Fun Ball"
+
+If an optional identifier is given, it defines a property whose value is the required resource. This can make it more convenient to refer to the resource, as in this example: the get statement uses the identifier Safari instead of the full specifier application "Safari".
+
+use Safari : application "Safari"
+
+get the name of Safari's front window
+
+By using use with multiple applications, you can combine terms from different sources in ways impossible using tell, because tell only makes one terminology source available at a time. For example, the following script, in one statement, uses Mail and Safari to search the web for the sender of the currently selected mail message. The get event is sent to Mail because it defines message viewer, while the search the web event is sent to Safari.
+
+use application "Mail"
+
+use application "Safari"
+
+ 
+
+search the web for the sender of the first item of ¬
+
+ 
+
+   (get selected messages of the front message viewer)
+use (framework)
+
+Declares a required framework for use with the AppleScript/Objective-C bridge.
+
+Syntax
+use  framework  specifier
+
+Placeholders
+specifier
+
+Specifier data for the resource. This may be a base name ("AppKit"), a full name ("AppKit.framework"), or a POSIX path ("/System/Library/Frameworks/AppKit.framework").
+
+Examples
+
+Most scripts that use the AppleScript/Objective-C bridge should have at least one of these two use statements:
+
+use framework "Foundation"
+
+use framework "AppKit"
+
+ASLR.txt: lines 14919-14925:
+Discussion
+
+When a command fails to complete in the allotted time (whether the default of two minutes, or a time set by a with timeout statement), AppleScript stops running the script and returns the error "event timed out". AppleScript does not cancel the operation—it merely stops execution of the script. If you want the script to continue, you can wrap the statements in a try statement. However, whether your script can send a command to cancel an offending lengthy operation after a timeout is dependent on the application that is performing the command.
+
+A with timeout statement applies only to commands sent to application objects, not to commands sent to the application that is running the script.
+
+In some situations, you may want to use an ignoring application responses statement (instead of a with timeout statement) so that your script needn’t wait for application commands to complete. For more information, see considering and ignoring Statements.
+
+ASLR.txt: lines 15497-15500:
+Operating System Errors
+
+An operating system error is an error that occurs when AppleScript or an application requests services from the Mac OS. They are rare, and often there is nothing you can do about them in a script, other than report them. A few, such as "User canceled", make sense for scripts to handle—as shown, for an example, in the Examples section for the display dialog command.
+
+
+ASLR.txt: lines 15720-15735:
+
+An Apple event error may occur when an app attempts to process an event sent by a script or a script attempts to process the reply.
+
+Table B-3  Apple Event Manager errors
+
+Error number
+
+	
+
+Error message
+
+-1700
+
+	
+
+Bad parameter data was detected or there was a failure while performing a coercion.
+
+ASLR.txt: lines 16188-16243:
+
+The SumIntegerList handler expects a list of integers. If any item in the passed list is not an integer, SumIntegerList signals error number 750 and returns 0. The handler includes an error handler that displays a dialog if the error number is equal to 750; if the error number is not equal to 750, the handler resignals the error with an error statement so that other statements in the call chain can handle the unknown error. If no statement handles the error, AppleScript displays an error dialog and execution stops.
+
+on SumIntegerList from itemList
+
+    try
+
+        -- Initialize return value.
+
+        set integerSum to 0
+
+        -- Before doing sum, check that all items in list are integers.
+
+        if ((count items in itemList) is not equal to ¬
+
+            (count integers in itemList)) then
+
+            -- If all items aren’t integers, signal an error.
+
+            error number 750
+
+        end if
+
+        -- Use a repeat statement to sum the integers in the list.
+
+        repeat with currentItem in itemList
+
+            set integerSum to integerSum + currentItem
+
+        end repeat
+
+        return integerSum -- Successful completion of handler.
+
+    on error errStr number errorNumber
+
+        -- If our own error number, warn about bad data.
+
+        if the errorNumber is equal to 750 then
+
+            display dialog "All items in the list must be integers."
+
+            return integerSum -- Return the default value (0).
+
+        else
+
+            -- An unknown error occurred. Resignal, so the caller
+
+            -- can handle it, or AppleScript can display the number.
+
+            error errStr number errorNumber
+
+        end if
+
+    end try
+
+end SumIntegerList
+
+ASLR.txt: lines 16308-16323:
+
+try
+
+    open for access file "MyFolder:AddressData" with write permission
+
+on error number -49
+
+    display dialog "I'm sorry but the file is already open."
+
+end try
+
+In this version, there is no need to list the message, from, to, or partial result parameters, in order to pass them along. If the error is not -49 (file <name> is already open), this error handler will not catch the error, and AppleScript will pass the error to the next handler in an outer scope.
+
+One drawback to this approach is that you must use a literal constant for the error number in the on error parameter list. You can't use global variable or property names because the number must be known when the script is compiled.
+
+Next
+
+ASLR.txt: lines 16625-16626:
+https://developer.apple.com/library/archive/documentation/AppleScript/Conceptual/AppleScriptLangGuide/conceptual/ASLR_raw_data.html#//apple_ref/doc/uid/TP40000983-CH225-SW1
+https://developer.apple.com/library/archive/documentation/AppleScript/Conceptual/AppleScriptLangGuide/conceptual/ASLR_raw_data.html#//apple_ref/doc/uid/TP40000983-CH225-SW37
+
+ASLR.txt: lines 16632-16632:
+https://developer.apple.com/library/archive/documentation/AppleScript/Conceptual/AppleScriptLangGuide/reference/ASLR_unsupported_terms.html#//apple_ref/doc/uid/TP40000983-CH224-SW1
+
+ASLR.txt: lines 16781-16783:
+continuation character   
+
+A character used in Script Editor to extend a statement to the next line. With a U.S. keyboard, you can enter this character by typing Option-l (lower-case L).
+
+ASLR.txt: lines 16825-16827:
+dialect   
+
+A version of the AppleScript language that resembles a specific human language or programming language. As of AppleScript 1.3, English is the only dialect supported.
+
+ASLR.txt: lines 17061-17063:
+raw format   
+
+AppleScript terms enclosed in double angle brackets, or chevrons («»). AppleScript uses raw format because it cannot find a script term in any available dictionary, or cannot display data in its native format.
+
+ASLR.txt: lines 17185-17187:
+styled text   
+
+Text that may include style and font information. Not supported in AppleScript 2.0.
+
+ASLR.txt: lines 17265-17268:
+with transaction statement   
+
+A control statement that allows you to take advantage of applications that support the notion of a transaction—a sequence of related events that should be performed as if they were a single operation, such that either all of the changes are applied or none are.
+
+
+ASLR.txt: lines 17663-17686:
+
+You can write a handler that overrides an AppleScript command but uses a continue statement to pass control on to the AppleScript command if desired:
+
+on beep numTimes
+
+    set x to display dialog "Start beeping?" buttons {"Yes", "No"}
+
+    if button returned of x is "Yes" then ¬
+
+        continue beep numTimes -- Let AppleScript handle the beep.
+
+        -- In this example, nothing to do after returning from the continue.
+
+end beep
+
+ 
+
+beep 3 --result: local beep handler invoked; shows dialog before beeping
+
+tell my parent to beep 3 -- result: AppleScript beep command invoked
+
+When AppleScript encounters the statement beep 3, it invokes the local beep handler, which displays a dialog. If the user clicks Yes, the handler uses a continue statement to pass the beep command to the script’s parent (AppleScript), which handles the command by beeping. If the user clicks No, it does not continue the beep command, and no sound is heard.
+
+The final statement, tell my parent to beep 3, shows how to directly invoke the AppleScript beep command, rather than the local handler.
+
+ASLR.txt: lines 17869-17871:
+Note: AppleScript automatically converts between some forms when you compile. For example, given rounding:true is converted to with rounding, and with rounding, smoothing is converted to with rounding and smoothing.
+
+Handler Syntax (Positional Parameters)
+
+ASLR.txt: lines 17934-17955:
+
+A handler is a collection of statements that can be invoked by name. This section describes the syntax for handlers that use interleaved parameters.
+
+Syntax
+on | tohandlerNamePart:userParamName [namePart:userParamName ]... )
+   [ statement ]...
+end [ handlerName ] 
+
+Placeholders
+handlerNamePart, namePart
+
+An identifier that, combined with the other parts, forms the handler name.
+
+userParamName
+
+An identifier for a user-defined parameter variable.
+
+statement
+
+Any AppleScript statement, including global or local variable declarations. For information about the scope of local and global variables, see Scope of Variables and Properties.
+
+Examples
+
+ASLR.txt: lines 18352-18355:
+Folder Actions is a feature of macOS that lets you associate AppleScript scripts with folders. A Folder Action script is executed when the folder to which it is attached has items added or removed, or when its window is opened, closed, moved, or resized. The script provides a handler that matches the appropriate format for the action, as described in this chapter.
+
+Folder Actions make it easy to create hot folders that respond to external actions to trigger a workflow. For example, you can use a Folder Action script to initiate automated processing of any photo dropped in a targeted folder. A well written Folder Action script leaves the hot folder empty. This avoids repeated application of the action to the same files, and allows Folder Actions to perform more efficiently.
+
+
+ASLR.txt: lines 18551-18553:
+
+Warning: In OS X v10.5, and possibly in previous OS versions, Folder Actions does not activate attached moving folder window for scripts when the folder is moved.
+
+
+ASLR.txt: lines 18629-18631:
+listOfAliasOrText
+
+List of aliases that identify the items lost (removed) from the folder. For permanently deleted items, only the names are provided (as text strings).
+
+ASLR.txt: lines 19313-19316:
+refers to the current target (of it)—see The it and me Keywords
+
+its
+
+
+ASLR.txt: lines 19501-19504:
+the
+
+	
+
+
+ASLR.txt: lines 19555-19560:
+try
+
+	
+
+an error-handling statement—see try Statements
+
+
+ASLR.txt: lines 19959-19987:
+Libraries using Load Script
+
+OS X Mavericks v10.9 (AppleScript 2.3) introduces built-in support for script libraries, which are scripts containing handlers that may be shared among many scripts. Scripts that must run on older versions of the OS can share handlers between scripts using load script, as described here.
+
+Saving and Loading Libraries of Handlers
+
+In addition to defining and calling handlers within a script, you can access handlers from other scripts. To make a handler available to another script, save it as a compiled script, then use the load script command to load it in any script that needs to call the handler. You can use this technique to create libraries containing many handlers.
+
+Note: The load script command loads the compiled script as a script object; for more information, see Script Objects.
+
+For example, the following script contains two handlers: areaOfCircle and factorial:
+
+-- This handler computes the area of a circle from its radius.
+
+-- (The area of a circle is equal to pi times its radius squared.)
+
+on areaOfCircle from radius
+
+    -- Make sure the parameter is a real number or an integer.
+
+    if class of radius is contained by {integer, real}
+
+        return radius * radius * pi -- pi is predefined by AppleScript.
+
+    else
+
+        error "The parameter must be a real number or an integer"
+
+    end if
+
+ASLR.txt: lines 20017-20029:
+After saving the script as a compiled script, other scripts can use the load script command to load it. For example, the following script loads the compiled script NumberLib.scpt, storing the resulting script object in the variable numberLib. It then makes handler calls within a tell statement that targets the script object. The compiled script must exist in the specified location for this script to work.
+
+set numberLibrary to (load script file "NumberLib.scpt")
+
+ 
+
+tell numberLibrary
+
+    factorial(10)             --result: 3628800
+
+    areaOfCircle from 12      --result: 452.38934211693
+
+end tell
+
+ASLR.txt: lines 20395-20402:
+Arbitrary
+
+Specifies an arbitrary object in a container. This form is useful whenever randomness is desired.
+
+Because an arbitrary item is, by its nature, random, this form is not useful for operations such as processing each item in a group of files, words, or other objects.
+
+Syntax
+some  class
+
+ASLR.txt: lines 20491-20586:
+Filter
+
+Specifies all objects in a container that match a condition, or test, specified by a Boolean expression.
+
+The filter form specifies application objects only. It cannot be used to filter the AppleScript objects list, record, or text. A term that uses the filter form is also known as a whose clause.
+
+Note: You can use the words where or that as synonyms for whose.
+
+A filter reference form can often be replaced by a repeat statement, or vice versa. For example, the following script closes every TextEdit window that isn’t named "Old Report.rtf":
+
+tell application "TextEdit"
+
+    close every window whose name is not "Old Report.rtf"
+
+end tell
+
+You could instead obtain a list of open windows and set up a repeat statement that checks the name of each window and closes the window if it isn’t named "Old Report.rtf". However, a whose clause is often the fastest way to obtain the desired information.
+
+The following is an abbreviated form of the previous script:
+
+windows of application "TextEdit" whose name is not "Old Report.rtf"
+
+For related information, see repeat Statements.
+
+Syntax
+objectSpecifier  ( whose | where )  booleanTest 
+
+Placeholders
+objectSpecifier
+
+Specifies the container in which to look for objects that match the Boolean test.
+
+whose | where
+
+These words have the same meaning, and refer to all of the objects in the specified container that match the conditions in the specified Boolean expression.
+
+booleanTest
+
+Any Boolean expression (see the boolean class definition).
+
+Value
+
+The value of a filter reference form is a list of the objects that pass the test. If no objects pass the test, the list is an empty list: {}.
+
+Examples
+
+The following example shows an object specifier for all open Finder windows that do not have the name "AppleScript Language Guide".
+
+tell application "Finder"
+
+    every window whose name is not "AppleScript Language Guide"
+
+end tell
+Discussion
+
+In effect, a filter reduces the number of objects in a container. Instead of specifying every Finder window, the following object specifier specifies just the windows that are currently zoomed:
+
+every window whose zoomed is true
+
+To specify a container after a filter, you must enclose the filter and the object specifier it applies to in parentheses, as in this example:
+
+tell application "Finder"
+
+    (files whose file type is not "APPL") in folder "HD:SomeFolder:"
+
+end tell
+
+Within a test in a filter reference, the direct object is the object being tested. Though it isn’t generally needed, this implicit target can be specified explicitly using the keyword it, which is described in The it and me Keywords.
+
+The following example shows several equivalent ways of constructing a filter reference to find all the files in a folder that whose name contains the word “AppleScript”. While the term it refers to the Finder application outside of the filter statements, within them of it refers to the current file being tested. The result of each filter test is the same and is not changed by including or omitting the term of it:
+
+tell application "Finder"
+
+    it --result: application "Finder" (target of tell statement)
+
+    set myFolder to path to home folder
+
+        --result: alias "Leopard:Users:myUser:"
+
+    files in myFolder --result: a list of Finder document files
+
+    files in myFolder where name of it contains "AppleScript"
+
+    (* result: document file "AppleScriptLG.pdf" of folder "myUser"
+
+        of folder "Users" of startup disk of application "Finder"}*)
+
+    files in myFolder where name contains "AppleScript" -- same result
+
+    every file in myFolder whose name contains "AppleScript" -- same result
+
+    every file in myFolder where name of it contains "AppleScript"
+
+        -- same result
+
+end tell
+
+ASLR.txt: lines 20662-20669:
+Discussion
+
+Use of the id reference form implies the existence of a id property for the specified objects.
+
+Although id properties are most often integers, an id property can belong to any class. An application that supports id properties for its scriptable objects must guarantee that the IDs are unique within a container. Some applications may also provide additional guarantees, such as ensuring the uniqueness of an ID among all objects.
+
+The value of an id property is not typically modifiable. It does not change even if the object is moved within the container. This allows you to save an object’s ID and use it to refer to the object for as long as the object exists. In some scripts you may wish to refer to an object by its ID, rather than by a property such as its name, which may change. Similarly, you could keep track of an item by its index, but indexes can change when items in a container are added, deleted, or even renamed.
+
+
+ASLR.txt: lines 22019-22129:
+& (concatenation)
+
+The concatenation operator (&) concatenates text objects, joins record objects into a record, and joins other objects into a list.
+
+Table 9-1 summarizes the use of use of this operator.
+
+text
+
+The concatenation of two text objects joins the characters from the left-hand text object to the characters from the right-hand text object, without intervening spaces. For example, "dump" & "truck" evaluates to the text object "dumptruck".
+
+If the left-hand operand is a text object, but the right-hand operand is not, AppleScript attempts to coerce the right-hand operand to a text object. For example, when AppleScript evaluates the expression "Route " & 66 it coerces the integer 66 to the text object "66", and the result is the text object "Route 66".
+
+However, you get a different result if you reverse the order of the operands:
+
+66 & "Route " --result: {66, "Route "} (a list)
+
+In the following example, the left-hand operand is a text object and the right-hand operand is a list, so concatenation results in a text object:
+
+item 1 of {"This"} & {"and", "that"} -- "Thisandthat"
+record
+
+The concatenation of two records joins the properties of the left-hand record to the properties of the right-hand record. If both records contain properties with the same name, the value of the property from the left-hand record appears in the result. For example, the result of the expression
+
+{ name:"Matt", mileage:"8000" } & { name:"Steve", framesize:58 }
+
+is
+
+{ name:"Matt", mileage:"8000", frameSize:58 }
+All Other Classes
+
+Except for the cases described above for text objects and record objects, the concatenation operator (&) joins lists. A non-list operand is considered to be a list containing that operand. The following example shows concatenation of two integers, a list and a text string, and a list and a record, respectively:
+
+1 & 2 --result: {1, 2}
+
+{"this"} & "hello" --result: {"this", "hello"}
+
+{"this"} & {a:1, b:2} --result: {"this", 1, 2}
+
+If both the operands to be concatenated are lists, then the result is a list containing all the items in the left-hand list, followed by all the items in the right-hand list. For example:
+
+{"This"} & {"and", "that"} --result: {"This", "and", "that"}
+
+{"This"} & item 1 of {"and", "that"} --result: {"This", "and"}
+
+To join two lists and create a list of lists, rather than a single list, you can enclose each list in two sets of brackets:
+
+{{1, 2}} & {{3, 4}} --result: {{1, 2}, {3, 4}}
+
+For information on working efficiently with large lists, see list.
+
+a reference to
+
+The a reference to operator is a unary operator that returns a reference object. You can abbreviate this operator to a ref to, or ref to, or even just ref.
+
+For related information, see the reference class and Object Specifiers.
+
+Examples
+
+The following statement creates a reference object that contains an object specifier to the Finder startup disk:
+
+tell app "Finder" to set diskRef to a ref to startup disk
+
+--result: startup disk of application "Finder"
+
+The following shows how to obtain a reference object that refers to an item in a list:
+
+set itemRef to a reference to item 3 of {1, "hello", 755, 99}
+
+    --result: item 3 of {1, "hello", 755, 99}
+
+set newTotal to itemRef + 45 --result: 800
+
+In the final line, AppleScript automatically resolves the object specifier contained in the reference itemRef and obtains its value to use in the addition operation. To cause AppleScript to explicitly resolve a reference object, you can use its contents property:
+
+contents of itemRef --result: 755
+
+The next examples demonstrate how using a reference object can result in a different outcome than accessing an object directly. The first example obtains a current track object from iTunes, gets the name, changes the track, then gets the name again:
+
+tell application "iTunes"
+
+    set curTrack to current track
+
+    --result: file track id 2703 of user playlist id 2425
+
+    --        of source id 46 of application "iTunes"
+
+    display dialog (name of curTrack as string)  -- "Shattered"
+
+    next track -- play next song
+
+    display dialog (name of curTrack as string) -- "Shattered"
+
+end tell
+
+Because curTrack is a specific track object, its name doesn’t change when the current track changes. But observe the result when using a reference to the current track:
+
+tell application "iTunes"
+
+    set trackRef to a reference to current track
+
+    --result: current track of application "iTunes"
+
+    display dialog (name of trackRef as string) -- "Shattered"
+
+    next track -- play next song
+
+    display dialog (name of trackRef as string) -- "Strange Days"
+
+end tell
+
+Because trackRef is a reference object containing an object specifier, the specifier identifies the new track when the current track changes.
+
+ASLR.txt: lines 22131-22138:
+as (coercion)
+
+The as operator converts, or coerces, a value of one class to a value of another class. Not all values are coercible to all classes; see Coercion (Object Conversion) for a list of allowed coercions.
+
+The right-hand operand of as may be a single class, such as text, or a list of classes, such as {integer, text}. When given a list, the as operator processes the list from the first type to the last, checking if the value is an instance of that type; if one matches, the result is the original value. If none match, then it again processes the list from the first type to the last, attempting to coerce the value to that type; the result is the result of the first successful coercion. If none succeed, it throws an error.
+
+Note: Coercing to a list of classes is supported in OS X Yosemite v10.10 and later.
+
+
+ASLR.txt: lines 22141-22150:
+This expression returns x as a number, suitable for use with a math operator. For example, if x was the text "1.5", it would return the real value 1.5.
+
+x as number
+
+This expression returns x as either an integer or text, whichever succeeds first. For example, consider if x was date "Wednesday, May 27, 2015 at 12:03:15 PM": date objects cannot be coerced to integers, but they can be coerced to text, so the result is the date as text: "Wednesday, May 27, 2015 at 12:03:15 PM".
+
+x as {integer, text}
+
+The way lists of classes are processed means that the result of as can depend on the order of the classes. For example, the result of 1.5 as {integer, text} is 2, but 1.5 as {text, integer} is "1.5". It is also possible to have types that will never be reached. For example, in the expression x as {number, integer}, the integer coercion will never trigger, because number will always succeed first.
+
+
+ASLR.txt: lines 22224-22240:
+
+Two text objects are equal if they are both the same series of characters. They are not equal if they are different series of characters. For related information, see the text class.
+
+Text comparisons can be affected by considering and ignoring statements, which instruct AppleScript to selectively consider or ignore attributes of characters or types of characters. For example, unless you use an ignoring statement, AppleScript compares text objects by considering all characters and punctuation.
+
+AppleScript does not distinguish uppercase from lowercase letters unless you use a considering statement to consider the case attribute. For example:
+
+"DUMPtruck" is equal to "dumptruck" --result: true
+
+considering case
+
+    "DUMPtruck" is equal to "dumptruck" --result: false
+
+end considering
+
+When comparing two text objects, if the test is not enclosed in a considering or ignoring statement, then the comparison uses default values for considering and ignoring attributes (described in considering / ignoring (text comparison)).
+
+
+osascript.txt: lines 28-38:
+     Any arguments following the script will be passed as a list of strings to
+     the direct parameter of the “run” handler.  For example, in AppleScript:
+
+           a.scpt:
+           on run argv
+               return "hello, " & item 1 of argv & "."
+           end run
+
+           % osascript a.scpt world
+           hello, world.
+
+
+osascript.txt: lines 59-79:
+     -s flags
+           Modify the output style.  The flags argument is a string consisting
+           of any of the modifier characters e, h, o, and s.  Multiple
+           modifiers can be concatenated in the same string, and multiple -s
+           options can be specified.  The modifiers come in exclusive pairs;
+           if conflicting modifiers are specified, the last one takes
+           precedence.  The meanings of the modifier characters are as
+           follows:
+
+           h  Print values in human-readable form (default).
+           s  Print values in recompilable source form.
+
+              osascript normally prints its results in human-readable form:
+              strings do not have quotes around them, characters are not
+              escaped, braces for lists and records are omitted, etc.  This is
+              generally more useful, but can introduce ambiguities.  For
+              example, the lists ‘{"foo", "bar"}’ and ‘{{"foo", {"bar"}}}’
+              would both be displayed as ‘foo, bar’.  To see the results in an
+              unambiguous form that could be recompiled into the same value,
+              use the s modifier.
+
+

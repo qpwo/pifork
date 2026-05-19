@@ -14,6 +14,8 @@
 #   packages/coding-agent/binaries/
 #     pi-darwin-arm64.tar.gz
 #     pi-darwin-x64.tar.gz
+#     pi-darwin-arm64.dmg
+#     pi-darwin-x64.dmg
 #     pi-linux-x64.tar.gz
 #     pi-linux-arm64.tar.gz
 #     pi-windows-x64.zip
@@ -88,6 +90,7 @@ fi
 
 echo "==> Building all packages..."
 npm run build
+npm run build --prefix packages/web-ui/example
 
 echo "==> Building binaries..."
 cd packages/coding-agent
@@ -129,6 +132,8 @@ for platform in "${PLATFORMS[@]}"; do
     mkdir -p binaries/$platform/assets
     cp dist/modes/interactive/assets/* binaries/$platform/assets/
     cp -r dist/core/export-html binaries/$platform/
+    mkdir -p binaries/$platform/web-ui
+    cp -r ../web-ui/example/dist/* binaries/$platform/web-ui/
     cp -r docs binaries/$platform/
     cp -r examples binaries/$platform/
 
@@ -144,6 +149,54 @@ for platform in "${PLATFORMS[@]}"; do
         cp ../../node_modules/koffi/package.json binaries/$platform/node_modules/koffi/
         cp ../../node_modules/koffi/build/koffi/$koffi_arch_dir/koffi.node binaries/$platform/node_modules/koffi/build/koffi/$koffi_arch_dir/
     fi
+
+    if [[ "$platform" == darwin-* ]]; then
+        app_dir="binaries/$platform/Pi Web.app"
+        echo "Creating Pi Web.app for $platform..."
+        if command -v swiftc &> /dev/null; then
+            mkdir -p "$app_dir/Contents/MacOS" "$app_dir/Contents/Resources"
+            swiftc -parse-as-library src/macos/PiWebMenuBar.swift -o "$app_dir/Contents/MacOS/PiWebMenuBar" -framework AppKit -framework ApplicationServices
+            cp "binaries/$platform/pi" "$app_dir/Contents/MacOS/pi"
+            cp "binaries/$platform/package.json" "$app_dir/Contents/MacOS/"
+            cp "binaries/$platform/photon_rs_bg.wasm" "$app_dir/Contents/MacOS/"
+            cp -r "binaries/$platform/theme" "$app_dir/Contents/MacOS/theme"
+            cp -r "binaries/$platform/assets" "$app_dir/Contents/MacOS/assets"
+            cp -r "binaries/$platform/export-html" "$app_dir/Contents/MacOS/export-html"
+            cp -r "binaries/$platform/web-ui" "$app_dir/Contents/MacOS/web-ui"
+            cat > "$app_dir/Contents/Info.plist" <<'PLIST'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "https://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+        <key>CFBundleExecutable</key>
+        <string>PiWebMenuBar</string>
+        <key>CFBundleIdentifier</key>
+        <string>works.earendil.pi.web</string>
+        <key>CFBundleName</key>
+        <string>Pi Web</string>
+        <key>CFBundleDisplayName</key>
+        <string>Pi Web</string>
+        <key>CFBundlePackageType</key>
+        <string>APPL</string>
+        <key>CFBundleShortVersionString</key>
+        <string>0.75.3</string>
+        <key>CFBundleVersion</key>
+        <string>0.75.3</string>
+        <key>LSUIElement</key>
+        <true/>
+        <key>NSAppleEventsUsageDescription</key>
+        <string>Pi Web can run local automation commands when you grant permission.</string>
+</dict>
+</plist>
+PLIST
+            chmod +x "$app_dir/Contents/MacOS/PiWebMenuBar" "$app_dir/Contents/MacOS/pi"
+            if command -v codesign &> /dev/null; then
+                codesign --force --deep --sign - "$app_dir" || true
+            fi
+        else
+            echo "Skipping Pi Web.app: swiftc not found"
+        fi
+    fi
 done
 
 # Create archives
@@ -154,6 +207,22 @@ for platform in "${PLATFORMS[@]}"; do
         # Windows (zip)
         echo "Creating pi-$platform.zip..."
         (cd $platform && zip -r ../pi-$platform.zip .)
+    elif [[ "$platform" == darwin-* ]]; then
+        # macOS (dmg + tar.gz)
+        echo "Creating pi-$platform.tar.gz..."
+        mv $platform pi && tar -czf pi-$platform.tar.gz pi && mv pi $platform
+
+        echo "Creating pi-$platform.dmg..."
+        if command -v hdiutil &> /dev/null; then
+            rm -rf "${platform}-dmg-staging"
+            mkdir -p "${platform}-dmg-staging"
+            cp -r "$platform/Pi Web.app" "${platform}-dmg-staging/"
+            ln -s /Applications "${platform}-dmg-staging/Applications"
+            hdiutil create -volname "Pi Web" -srcfolder "${platform}-dmg-staging" -ov -format UDZO "pi-$platform.dmg"
+            rm -rf "${platform}-dmg-staging"
+        else
+            echo "Skipping .dmg creation: hdiutil not found"
+        fi
     else
         # Unix platforms (tar.gz) - use wrapper directory for mise compatibility
         echo "Creating pi-$platform.tar.gz..."
@@ -175,7 +244,7 @@ done
 echo ""
 echo "==> Build complete!"
 echo "Archives available in packages/coding-agent/binaries/"
-ls -lh *.tar.gz *.zip 2>/dev/null || true
+ls -lh *.tar.gz *.zip *.dmg 2>/dev/null || true
 echo ""
 echo "Extracted directories for testing:"
 for platform in "${PLATFORMS[@]}"; do

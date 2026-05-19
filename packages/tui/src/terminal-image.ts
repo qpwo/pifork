@@ -78,6 +78,10 @@ export function detectCapabilities(): TerminalCapabilities {
 		return { images: null, trueColor: true, hyperlinks: true };
 	}
 
+	if (termProgram === "apple_terminal") {
+	        return { images: null, trueColor: false, hyperlinks: true };
+	}
+
 	// Unknown terminal: be conservative. OSC 8 is rendered invisibly as "just
 	// text" on terminals that swallow it, which means the URL disappears from
 	// the rendered output. Default to the legacy `text (url)` behavior unless we

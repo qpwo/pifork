@@ -42,8 +42,8 @@ export class ApiKeysTab extends SettingsTab {
 // Proxy Tab
 @customElement("proxy-tab")
 export class ProxyTab extends SettingsTab {
-	@state() private proxyEnabled = false;
-	@state() private proxyUrl = "http://localhost:3001";
+	@state() private proxyEnabled = true;
+	@state() private proxyUrl = "/api/proxy";
 
 	override async connectedCallback() {
 		super.connectedCallback();
@@ -104,7 +104,7 @@ export class ProxyTab extends SettingsTab {
 						onChange: () => this.saveProxySettings(),
 					})}
 					<p class="text-xs text-muted-foreground">
-						${i18n("Format: The proxy must accept requests as <proxy-url>/?url=<target-url>")}
+						Format: /api/proxy is built into pi web. External proxies must accept requests as <proxy-url>/?url=<target-url>
 					</p>
 				</div>
 			</div>
